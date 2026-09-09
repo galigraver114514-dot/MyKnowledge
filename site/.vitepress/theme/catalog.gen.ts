@@ -13,6 +13,11 @@ export const NAV = [
   "path": "/graph"
  },
  {
+  "kind": "page",
+  "title": "追踪日历",
+  "path": "/track"
+ },
+ {
   "kind": "group",
   "key": "g-english",
   "title": "英语",
@@ -147,6 +152,14 @@ export const PAGE_META = {
   "lang": "zh",
   "track": false,
   "title": "学习图谱",
+  "node": null
+ },
+ "/track": {
+  "id": "track",
+  "created": "2026-09-09",
+  "lang": "zh",
+  "track": false,
+  "title": "追踪日历",
   "node": null
  },
  "/english/": {

@@ -134,6 +134,21 @@ export async function getUnitState(db, unitId) {
   return st.get(unitId) ?? { unitId, status: 'not_started', firstOpenTs: null, lastTs: null, openCount: 0, completedAt: null, reopenedAt: null }
 }
 
+// ---------- daily scales (motivation / concentration 1-10) ----------
+// One 'daily_scale' event per save, keyed by payload.date (local YYYY-MM-DD).
+// Same-day saves are last-write-wins by (ts, id).
+export async function getDailyScales(db) {
+  const evs = await allOf(db, 'events')
+  const out = {}
+  for (const ev of evs) {
+    if (ev.type !== 'daily_scale' || !ev.payload || typeof ev.payload.date !== 'string') continue
+    const cur = out[ev.payload.date]
+    const newer = !cur || ev.ts > cur.ts || (ev.ts === cur.ts && ev.id > cur.id)
+    if (newer) out[ev.payload.date] = { mot: Number(ev.payload.mot) || 0, conc: Number(ev.payload.conc) || 0 }
+  }
+  return out // { 'YYYY-MM-DD': { mot, conc } }
+}
+
 // ---------- export / import (idempotent) ----------
 export async function exportData(db) {
   const events = await allOf(db, 'events')

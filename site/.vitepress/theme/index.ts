@@ -5,6 +5,7 @@ import UnitTracker from './components/UnitTracker.vue'
 import ProgressPanel from './components/ProgressPanel.vue'
 import NodeView from './components/NodeView.vue'
 import GlobalNodeView from './components/GlobalNodeView.vue'
+import DailyScales from './components/DailyScales.vue'
 import './styles.css'
 
 export default {
@@ -14,5 +15,6 @@ export default {
     app.component('ProgressPanel', ProgressPanel)
     app.component('NodeView', NodeView)
     app.component('GlobalNodeView', GlobalNodeView)
+    app.component('DailyScales', DailyScales)
   }
 } satisfies Theme

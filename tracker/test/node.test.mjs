@@ -3,7 +3,7 @@
 // identical state; idempotency = importing again skips everything.
 import 'fake-indexeddb/auto'
 import assert from 'node:assert'
-import { openDB, closeDB, recordEvent, getState, getUnitState,
+import { openDB, closeDB, recordEvent, getState, getUnitState, getDailyScales,
          exportData, importData, clearEvents, takeSnapshot, listSnapshots, restoreSnapshot } from '../db.js'
 
 const db = await openDB()
@@ -65,5 +65,17 @@ try { await importData(db, { schemaVersion: 999, events: [] }) } catch { rejecte
 assert.strictEqual(rejected, true)
 ok('schemaVersion mismatch rejected')
 
+console.log('T7 daily scales: per-date latest wins, dates keyed correctly')
+await recordEvent(db, { type: 'daily_scale', unitId: null, payload: { date: '2026-09-09', mot: 3, conc: 4 } })
+await recordEvent(db, { type: 'daily_scale', unitId: null, payload: { date: '2026-09-09', mot: 8, conc: 9 } })
+await recordEvent(db, { type: 'daily_scale', unitId: null, payload: { date: '2026-09-10', mot: 5, conc: 6 } })
+const scales = await getDailyScales(db)
+assert.strictEqual(scales['2026-09-09'].mot, 8)      // same-day latest wins
+assert.strictEqual(scales['2026-09-09'].conc, 9)
+assert.strictEqual(scales['2026-09-10'].mot, 5)
+assert.strictEqual(Object.keys(scales).length, 2)
+ok('scales aggregated per date (latest wins)')
+
 closeDB(db)
 console.log('\nALL PASS: ' + pass + ' checks -> data layer verified (spec restore standard met)')
+

@@ -54,6 +54,7 @@ interface Event {
 | `unit_uncomplete` | 必填 | `{ note?: string }` | 撤销完成 (发现漏学/误标) | 由 unit_complete 重做 |
 | `session_start` | null | `{ ua?: string }` | 站点会话开始 (粒度: 页面加载) | - |
 | `note_add` *(预留)* | 可选 | `{ text }` | v1 不实现, 事件类型预留 | - |
+| `daily_scale` | null | `{ date: 'YYYY-MM-DD', mot: 1-10, conc: 1-10 }` | 每日自评(动力/专注); 同日重复保存按 (ts,id) 后者胜(覆盖观感, 留痕可查) | 重写即覆盖 |
 
 > 预留扩展 (不破坏 v1): 复习计划 (spaced-repetition) 只需追加 `review_schedule` / `review_result` 等新 type;
 > 事件 schema 增加字段视为 additive, 不变更 schemaVersion; 只有 store 结构或语义破坏性变化才 bump (§6)。
