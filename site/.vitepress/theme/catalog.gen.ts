@@ -4,17 +4,17 @@
 export const NAV = [
  {
   "kind": "page",
-  "title": "学习地图",
+  "title": "Home",
   "path": "/"
  },
  {
   "kind": "page",
-  "title": "学习图谱",
+  "title": "Knowledge graph",
   "path": "/graph"
  },
  {
   "kind": "page",
-  "title": "追踪日历",
+  "title": "Tracking calendar",
   "path": "/track"
  },
  {
@@ -147,7 +147,7 @@ export const PAGE_META = {
   "created": "2026-09-09",
   "lang": "zh",
   "track": false,
-  "title": "学习地图",
+  "title": "Home",
   "node": null
  },
  "/graph": {
@@ -155,7 +155,7 @@ export const PAGE_META = {
   "created": "2026-09-09",
   "lang": "zh",
   "track": false,
-  "title": "学习图谱",
+  "title": "Knowledge graph",
   "node": null
  },
  "/track": {
@@ -163,7 +163,7 @@ export const PAGE_META = {
   "created": "2026-09-09",
   "lang": "zh",
   "track": false,
-  "title": "追踪日历",
+  "title": "Tracking calendar",
   "node": null
  },
  "/english/": {
@@ -171,7 +171,7 @@ export const PAGE_META = {
   "created": "2026-09-09",
   "lang": "zh",
   "track": false,
-  "title": "英语赛道",
+  "title": "English",
   "node": null
  },
  "/english/vocab-core/unit-01-core-verbs": {
@@ -233,7 +233,7 @@ export const PAGE_META = {
   "created": "2026-09-09",
   "lang": "zh",
   "track": false,
-  "title": "数学赛道",
+  "title": "Math",
   "node": null
  },
  "/math/unit-01-mental-addition": {

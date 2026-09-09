@@ -6,6 +6,7 @@ import ProgressPanel from './components/ProgressPanel.vue'
 import NodeView from './components/NodeView.vue'
 import GlobalNodeView from './components/GlobalNodeView.vue'
 import DailyScales from './components/DailyScales.vue'
+import PageContent from './components/PageContent.vue'
 import './styles.css'
 
 export default {
@@ -16,5 +17,6 @@ export default {
     app.component('NodeView', NodeView)
     app.component('GlobalNodeView', GlobalNodeView)
     app.component('DailyScales', DailyScales)
+    app.component('PageContent', PageContent)
   }
 } satisfies Theme

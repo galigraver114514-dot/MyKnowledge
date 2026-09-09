@@ -80,7 +80,23 @@ const D: Record<string, Row> = {
   'ds.saved': { en: 'saved {d}  mot={m} conc={c}', zh: '已保存 {d}  mot={m} conc={c}', ja: '保存済み {d}  mot={m} conc={c}' },
   'ds.cleared': { en: 'cleared {d} ({n})', zh: '已清空 {d}（{n}）', ja: 'クリア済み {d}（{n}）' },
   'ds.norecord': { en: 'no record for {d}', zh: '{d} 无记录', ja: '{d} に記録なし' },
-  'ds.legend': { en: 'click square N = score N · save writes to the selected date', zh: '点第 N 格 = 得 N 分 · 保存写入所选日期', ja: 'N番目をクリックで N 点 · 保存は選択日へ書き込み' }
+  'ds.legend': { en: 'click square N = score N · save writes to the selected date', zh: '点第 N 格 = 得 N 分 · 保存写入所选日期', ja: 'N番目をクリックで N 点 · 保存は選択日へ書き込み' },
+  // scaffold pages (static copy, follows UI language)
+  'home.intro': { en: 'A private learning site: content is public on GitHub Pages, all behavior data stays in your local browser (IndexedDB, real-time). Trackable & restorable.', zh: '私人学习网站：内容公开于 GitHub Pages，行为数据只存本机浏览器（IndexedDB，实时落盘）。可追踪、可复原。', ja: '個人学習サイト：コンテンツはGitHub Pagesで公開、行動データはすべてローカルブラウザ（IndexedDB、リアルタイム）のみ。追跡・復元可能。' },
+  'home.progress': { en: 'Local progress (live)', zh: '学习进度（本机实时）', ja: '進捗（ローカル）' },
+  'home.flow': { en: 'How to use a unit', zh: '单元使用流程', ja: 'ユニットの使い方' },
+  'home.s1': { en: 'open a unit page (auto-logs unit_open)', zh: '打开单元页面（自动记录 unit_open）', ja: 'ユニットページを開く（unit_open を自動記録）' },
+  'home.s2': { en: 'study the content, finish the self-check at the bottom', zh: '学习内容，完成页底自检', ja: '内容を学習し、下部の自己チェックを完了' },
+  'home.s3': { en: 'click "[ mark complete ]" under the content when done (can be undone)', zh: '学完点击内容下方的"[ 标记完成 ]"（可撤销）', ja: '完了したら「[ 完了にする ]」をクリック（戻す可）' },
+  'home.s4': { en: 'export JSON occasionally as an offline restore copy; use snapshots/import to roll back', zh: '定期导出 JSON 作离线复原副本；误操作可用快照/导入回滚', ja: '復元用に JSON を定期的にエクスポート；誤操作はスナップショット/インポートで戻す' },
+  'home.gennote': { en: 'Courses & units are generated from the folder structure - drop an .md file into a course dir and it appears automatically.', zh: '课程与单元由目录结构自动生成——在课程目录放入一个 md 文件即自动出现。', ja: 'コースとユニットはフォルダ構造から自動生成——コース配下に .md を置くだけで自動表示。' },
+  'home.restore': { en: 'Restore in three sentences', zh: '复原手册（三句话）', ja: '復元・三行まとめ' },
+  'home.r1': { en: 'daily: 5 local snapshots are auto-kept - restore from a snapshot after mistakes', zh: '日常：本地自动保留 5 份快照——误操作可从快照恢复', ja: '日常：スナップショット5件を自動保存——誤操作はそこから復元' },
+  'home.r2': { en: 'new machine/browser: export on the old one -> import on the new one', zh: '换机/换浏览器：旧机导出 → 新机导入', ja: '別端末：旧端末でエクスポート → 新端末でインポート' },
+  'home.r3': { en: 'disaster: clear -> import the latest export -> state matches exactly', zh: '灾难恢复：清空 → 导入最新导出 → 状态逐字段一致', ja: '復旧：クリア → 最新エクスポートをインポート → 状態が一致' },
+  'graph.intro': { en: 'All node-mode units are joined into one graph: the same concept appearing in several chapters merges into a single node (badge = chapter count). Click a node to open its unit. Clusters are aggregated at runtime over the active dimension - switching dimensions re-clusters the whole graph.', zh: '所有启用 node 模式的单元联合成一张图：同一概念出现在多个章节会合并为同一节点（角标 = 章节数）；点击节点跳回单元页。簇按当前维度运行时跨章节聚合——切换维度即全局重聚。', ja: 'nodeモードの全ユニットを1つのグラフに統合：複数章に現れる同一概念は1ノードに統合（バッジ=章数）。ノードをクリックで該当ユニットへ。クラスタは選択中の次元で動的に集約——次元を切替えると全体が再クラスタ化。' },
+  'track.intro': { en: 'Rate two things daily (1-10): mot (motivation, green) and conc (concentration, orange). Data stays in your browser (IndexedDB event log; re-saving a day keeps the latest). Cell color depth = score; the chart plots both lines; switch 7/14/30/100 days.', zh: '每天给两项打分（1–10）：mot（动力，绿）/ conc（专注，橙）。数据只存本机（IndexedDB 事件日志；同一天重复保存取最新）。格子颜色深浅 = 分值；折线图同轴两条线；可切 7/14/30/100 天。', ja: '毎日2項目を1–10で評価：mot（意欲、緑）/ conc（集中、橙）。データはローカルのみ（IndexedDB イベントログ、同日の再保存は最新優先）。セルの濃さ=値。折れ線は2本同時表示、7/14/30/100日で切替。' },
+  'course.intro': { en: 'Course hub. Units under this branch:', zh: '赛道首页。本分支下的单元：', ja: 'コース一覧。このブランチのユニット：' }
 }
 
 const lang = ref<Lang>('en')
@@ -107,9 +123,11 @@ export function useT() {
 }
 // course display label by dir (from multilingual courses.config)
 export function courseLabelOf(dir: string, l: Lang = lang.value): string {
-  const e = (cfg as { labels?: Record<string, Partial<Row>> }).labels?.[dir]
+  const labels = (cfg as { labels?: Record<string, Partial<Row>> }).labels || {}
+  const last = dir.split('/').pop() || dir
+  const e = labels[dir] ?? labels[last]
   if (e) return (e[l] as string) || e.en || dir
-  return dir
+  return last
 }
 export function zhCourseOf(zh: string, l: Lang = lang.value): string {
   const labels = (cfg as { labels?: Record<string, Partial<Row>> }).labels || {}

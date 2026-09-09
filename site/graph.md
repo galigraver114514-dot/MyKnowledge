@@ -1,13 +1,7 @@
 ---
-title: 学习图谱
+title: Knowledge graph
 created: 2026-09-09
 lang: zh
 ---
 
-# 学习图谱 · 跨章节整体视图
-
-> 把所有启用 node 模式的单元**联合成一张图**：同一概念出现在不同章节会被合并为同一个节点
-> （右上角数字 = 出现章节数），点击节点跳回它所在的单元页；簇按当前激活的维度跨章节聚合，
-> 切换维度 = 换一种全局聚类方式（dimension 不唯一）。
-
-<GlobalNodeView />
+<PageContent page="graph" />
