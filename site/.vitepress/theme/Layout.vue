@@ -10,13 +10,19 @@ import { NAV, type NavNode } from './nav'
 const SCROLL_KEY = 'mk.scroll.positions'
 
 const route = useRoute()
+function cur(): string {
+  const p = route.path
+  const b = withBase('/')
+  if (p === b) return '/'
+  return p.startsWith(b) ? p.slice(b.length - 1) : p
+}
 const treeRef = ref<InstanceType<typeof SiteTree> | null>(null)
 const open = ref(true)
 const showHelp = ref(false)
 const crumbs = ref('')
 const rawPath = ref('')
 const pct = ref(0)
-let lastPath = route.path
+let lastPath = cur()
 let ticking = false
 
 // ---------- bottom status bar data ----------
@@ -32,9 +38,9 @@ function findCrumbs(path: string, nodes: NavNode[] = NAV, acc: string[] = []): s
   return null
 }
 function updateLocation() {
-  rawPath.value = route.path
-  const bc = findCrumbs(route.path)
-  crumbs.value = bc ? bc.join(' / ') : route.path === '/' ? '学习地图' : route.path
+  rawPath.value = cur()
+  const bc = findCrumbs(cur())
+  crumbs.value = bc ? bc.join(' / ') : cur() === '/' ? '学习地图' : cur()
 }
 function calcPct(): number {
   const max = document.documentElement.scrollHeight - window.innerHeight
@@ -63,7 +69,7 @@ function savePos(path: string) {
   } catch { /* ignore */ }
 }
 function restorePos() {
-  const y = readPositions()[route.path] ?? 0
+  const y = readPositions()[cur()] ?? 0
   pct.value = 0
   if (typeof window === 'undefined') return
   if (y <= 0) { window.scrollTo(0, 0); return }
@@ -129,9 +135,10 @@ function onKey(e: KeyboardEvent) {
 }
 
 // route changes: save old page scroll, update the status bar, restore new page
-watch(() => route.path, (n, o) => {
-  if (o && o !== n) savePos(o)
-  lastPath = n
+watch(() => route.path, () => {
+  const prev = lastPath
+  lastPath = cur()
+  if (prev && prev !== lastPath) savePos(prev)
   updateLocation()
   restorePos()
 })

@@ -24,6 +24,14 @@ interface Row {
 }
 
 const route = useRoute()
+// VitePress route.path includes the base prefix (e.g. /MyKnowledge/english/...);
+// normalize to the bare path used by NAV entries.
+function cur(): string {
+  const p = route.path
+  const b = withBase('/')
+  if (p === b) return '/'
+  return p.startsWith(b) ? p.slice(b.length - 1) : p
+}
 const expanded = ref<Set<string>>(new Set())
 const cursor = ref<number | null>(null)
 const listEl = ref<HTMLElement | null>(null)
@@ -86,11 +94,11 @@ function ancestorsOfPath(path: string): string[] {
   return walk(NAV, []) ?? []
 }
 function syncCursorToRoute() {
-  const need = ancestorsOfPath(route.path)
+  const need = ancestorsOfPath(cur())
   let changed = false
   for (const k of need) { if (!expanded.value.has(k)) { expanded.value.add(k); changed = true } }
   if (changed) saveExpanded()   // auto-expanded ancestors must survive panel close/reopen
-  cursor.value = rows.value.findIndex((r) => r.path === route.path)
+  cursor.value = rows.value.findIndex((r) => r.path === cur())
 }
 function cursorEl(): HTMLElement | null {
   if (cursor.value == null || !listEl.value) return null
@@ -155,7 +163,7 @@ function onRowClick(i: number, isGroup: boolean) {
 }
 function mark(i: number, r: Row): string {
   if (i === cursor.value) return '>'
-  if (!r.isGroup && r.path === route.path) return '*'
+  if (!r.isGroup && r.path === cur()) return '*'
   return ' '
 }
 defineExpose({ moveUp, moveDown, activateCurrent, collapseLeft })
@@ -187,7 +195,7 @@ onBeforeUnmount(() => { listEl.value?.removeEventListener('scroll', onTreeScroll
       <a
         v-else
         class="mk-line"
-        :class="{ 'mk-cur': i === cursor, 'mk-current-page': r.path === route.path }"
+        :class="{ 'mk-cur': i === cursor, 'mk-current-page': r.path === cur() }"
         :href="withBase(r.path)"
         @click="onRowClick(i, false)"
       ><span class="mk-mark">{{ mark(i, r) }}</span><span class="mk-guide">{{ r.ind }}{{ r.conn }}</span>{{ r.title }}</a>
