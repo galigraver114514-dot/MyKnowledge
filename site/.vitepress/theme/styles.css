@@ -1,5 +1,5 @@
 /* =====================================================================
-   MyKnowledge theme: ASCII terminal, white-on-black-inverted (light) look.
+   MyKnowledge theme: ASCII terminal, white bg / black text.
    Monospace, plain text, no animation. Unified BLUE highlight accent.
    ===================================================================== */
 :root {
@@ -9,13 +9,13 @@
   --fg-bright: #000000;
   --muted: #6b7280;
   --dimline: #d4d4d8;
-  --accent: #0969da;            /* unified blue accent */
-  --accent-strong: #0747a1;     /* hover / emphasis */
+  --accent: #0969da;
+  --accent-strong: #0747a1;
   --accent-dim: #8b949e;
   --err: #b00020;
   --code-bg: #f2f4f8;
   --sel: rgba(9, 105, 218, 0.14);
-  --inv-bg: #000000;            /* cursor row stays black/white invert */
+  --inv-bg: #000000;   /* cursor row: black/white invert */
   --inv-fg: #ffffff;
   --mono: "SF Mono","JetBrains Mono","Fira Code",Menlo,Consolas,"Liberation Mono","Courier New","Noto Sans Mono CJK SC","PingFang SC",monospace;
 }
@@ -23,7 +23,7 @@
 html { scroll-behavior: auto; }
 body {
   margin: 0; background: var(--bg); color: var(--fg);
-  font-family: var(--mono); font-size: 15px; line-height: 1.6;
+  font-family: var(--mono); font-size: 15px; line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 * { transition: none !important; animation: none !important; }
@@ -35,7 +35,7 @@ a:hover { color: var(--accent-strong); }
 ::-webkit-scrollbar-thumb { background: var(--dimline); }
 ::-webkit-scrollbar-track { background: transparent; }
 
-/* ---------- layout skeleton ---------- */
+/* ---------------- layout skeleton ---------------- */
 .mk { display: flex; min-height: 100vh; align-items: stretch; }
 .mk-panel {
   position: sticky; top: 0; height: 100vh; flex: 0 0 280px;
@@ -44,7 +44,7 @@ a:hover { color: var(--accent-strong); }
 }
 .mk-panel-top {
   display: flex; align-items: baseline; justify-content: space-between;
-  padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--dimline);
+  padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--dimline);
 }
 .mk-brand { font-weight: 700; color: #000; text-decoration: none; }
 .mk-brand:hover { color: var(--accent); text-decoration: underline; }
@@ -53,84 +53,94 @@ a:hover { color: var(--accent-strong); }
   font: inherit; font-size: 0.85rem; padding: 0; line-height: 1;
 }
 .mk-ghost:hover { color: #000; }
-.mk-tree-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0.3rem 0.4rem 0.3rem 0.3rem; }
+.mk-tree-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0.2rem 0.4rem 0.2rem 0.3rem; }
 .mk-keys {
-  border-top: 1px solid var(--dimline); padding: 0.45rem 0.8rem;
-  color: var(--muted); font-size: 0.76rem; line-height: 1.7; white-space: pre;
+  border-top: 1px solid var(--dimline); padding: 0.35rem 0.75rem;
+  color: var(--muted); font-size: 0.72rem; line-height: 1.6; white-space: pre;
 }
 
-/* ---------- ASCII tree ---------- */
-.mk-tree { font-size: 14px; line-height: 1.7; }
-/* reset button/a defaults (padding was the old misalignment cause) */
+/* ---------------- ASCII tree ---------------- */
+.mk-tree { font-size: 14px; line-height: 1.6; }
 .mk-line {
   display: block; width: 100%; margin: 0; padding: 0 2px 0 0;
   border: 0; background: none; text-align: left;
   color: var(--fg); cursor: pointer; font: inherit;
-  line-height: 1.7; white-space: pre; text-decoration: none;
+  line-height: 1.6; white-space: pre; text-decoration: none;
 }
 .mk-line .mk-guide { color: var(--muted); }
 .mk-line .mk-exp { color: var(--accent-dim); }
 .mk-line:hover { color: var(--accent); }
 .mk-line:hover .mk-guide { color: var(--muted); }
-.mk-cur { background: var(--inv-bg); color: var(--inv-fg); }
+/* group/branch header rows: blue highlight */
+.mk-line.mk-group { color: var(--accent); font-weight: 700; }
+.mk-line.mk-group:hover { color: var(--accent-strong); }
+/* cursor row stays black/white invert (must come after .mk-group) */
+.mk-line.mk-cur { background: var(--inv-bg); color: var(--inv-fg); }
 .mk-cur .mk-guide, .mk-cur .mk-exp, .mk-cur .mk-mark { color: var(--inv-fg); }
 .mk-current-page:not(.mk-cur) { font-weight: 700; color: var(--accent); }
 .mk-current-page:not(.mk-cur) .mk-guide { color: var(--muted); }
-.mk-empty { color: var(--muted); padding: 0.4rem 0.7rem; font-size: 0.85rem; }
+.mk-empty { color: var(--muted); padding: 0.3rem 0.7rem; font-size: 0.85rem; }
 
 .mk-openbtn {
-  position: fixed; left: 0; bottom: 1rem; z-index: 40;
+  position: fixed; left: 0; bottom: 30px; z-index: 40;   /* sits above the status bar */
   background: var(--bg2); color: var(--muted);
   border: 1px solid var(--dimline); border-left: 0;
-  padding: 0.3rem 0.7rem; cursor: pointer; font: inherit; font-size: 0.84rem;
+  padding: 0.25rem 0.6rem; cursor: pointer; font: inherit; font-size: 0.82rem;
   text-decoration: none;
 }
 .mk-openbtn:hover { color: var(--accent); }
 
 .mk-main { flex: 1; min-width: 0; }
-.mk-content { max-width: 58em; margin: 0 auto; padding: 1.6rem 1.4rem 6rem; }
+.mk-content { max-width: 58em; margin: 0 auto; padding: 1.1rem 1.4rem 4.6rem; }
 
-/* ---------- content ---------- */
+/* ---------------- content (compact) ---------------- */
 .mk-content h1 {
-  font-size: 1.3rem; font-weight: 700; color: #000;
-  margin: 0 0 1rem; line-height: 1.35; border: 0;
+  font-size: 1.25rem; font-weight: 700; color: #000;
+  margin: 0 0 0.7rem; line-height: 1.3; border: 0;
 }
-/* headings carry markdown-ish '#' prefixes */
 .mk-content h2::before, .mk-content h3::before, .mk-content h4::before { color: var(--accent-dim); user-select: none; }
 .mk-content h2::before { content: '## '; }
 .mk-content h3::before { content: '### '; }
 .mk-content h4::before { content: '#### '; }
-.mk-content h2 { font-size: 1.08rem; font-weight: 700; color: #000; margin: 1.7rem 0 0.45rem; }
-.mk-content h3 { font-size: 1rem; font-weight: 700; color: #000; margin: 1.35rem 0 0.35rem; }
-.mk-content h4, .mk-content h5 { font-size: 0.95rem; font-weight: 700; color: #000; margin: 1rem 0 0.3rem; }
-.mk-content p { margin: 0.5rem 0; }
-/* ul: ASCII '-' instead of bullets */
-.mk-content ul { list-style: none; margin: 0.5rem 0; padding-left: 0; }
+.mk-content h2 { font-size: 1.06rem; font-weight: 700; color: #000; margin: 1.25rem 0 0.3rem; }
+.mk-content h3 { font-size: 0.98rem; font-weight: 700; color: #000; margin: 1rem 0 0.25rem; }
+.mk-content h4, .mk-content h5 { font-size: 0.94rem; font-weight: 700; color: #000; margin: 0.8rem 0 0.2rem; }
+.mk-content p { margin: 0.4rem 0; }
+.mk-content ul { list-style: none; margin: 0.4rem 0; padding-left: 0; }
 .mk-content ul > li { padding-left: 2ch; text-indent: -2ch; }
 .mk-content ul > li::before { content: '- '; color: var(--accent-dim); }
-.mk-content ol { margin: 0.5rem 0; padding-left: 2.4em; }
-.mk-content li { margin: 0.12rem 0; }
-.mk-content li > input[type="checkbox"] { margin: 0 0.5em 0 0; accent-color: var(--accent); }
-.mk-content blockquote {
-  margin: 0.7rem 0; padding-left: 1ch; color: var(--muted);
-  border-left: 1px solid var(--dimline);
-}
-.mk-content blockquote p { margin: 0.2rem 0; }
-/* tables: no verticals, horizontal dashed separators only */
-.mk-content table { border-collapse: collapse; margin: 0.8rem 0; display: block; overflow-x: auto; font-size: 0.92rem; }
-.mk-content th, .mk-content td { border: 0; border-bottom: 1px dashed var(--dimline); padding: 0.22rem 1.2rem 0.22rem 0; text-align: left; vertical-align: top; }
+.mk-content ol { margin: 0.4rem 0; padding-left: 2.2em; }
+.mk-content li { margin: 0.06rem 0; }
+.mk-content li > input[type="checkbox"] { margin: 0 0.45em 0 0; accent-color: var(--accent); }
+.mk-content blockquote { margin: 0.5rem 0; padding-left: 1ch; color: var(--muted); border-left: 1px solid var(--dimline); }
+.mk-content blockquote p { margin: 0.15rem 0; }
+.mk-content table { border-collapse: collapse; margin: 0.6rem 0; display: block; overflow-x: auto; font-size: 0.9rem; }
+.mk-content th, .mk-content td { border: 0; border-bottom: 1px dashed var(--dimline); padding: 0.16rem 0.9rem 0.16rem 0; text-align: left; vertical-align: top; }
 .mk-content thead th { border-bottom: 1px solid var(--accent); color: var(--accent); font-weight: 700; }
 .mk-content tbody tr:last-child td { border-bottom: 0; }
-.mk-content code { background: var(--code-bg); color: var(--accent-strong); padding: 0.05rem 0.3rem; font-size: 0.92em; }
-.mk-content pre { background: var(--code-bg); padding: 0.7rem 0.9rem; overflow-x: auto; line-height: 1.55; border: 1px solid var(--dimline); }
+.mk-content code { background: var(--code-bg); color: var(--accent-strong); padding: 0.05rem 0.25rem; font-size: 0.92em; }
+.mk-content pre { background: var(--code-bg); padding: 0.6rem 0.8rem; overflow-x: auto; line-height: 1.5; border: 1px solid var(--dimline); margin: 0.5rem 0; }
 .mk-content pre code { background: none; color: #000; padding: 0; }
-.mk-content hr { border: 0; border-top: 1px dashed var(--muted); margin: 1.6rem 0; }
+.mk-content hr { border: 0; border-top: 1px dashed var(--muted); margin: 1.2rem 0; }
 .mk-content img { max-width: 100%; }
 .mk-content .header-anchor { color: var(--accent-dim); }
 .mk-content strong { font-weight: 700; color: #000; }
 .mk-content em { color: #000; }
 
-/* ---------- help ---------- */
+/* ---------------- bottom status bar ---------------- */
+.mk-status {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
+  height: 25px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 0.7rem; font-size: 0.75rem; line-height: 1;
+  background: var(--bg2); border-top: 1px solid var(--dimline);
+  color: var(--muted); white-space: nowrap;
+}
+.mk-status-left { overflow: hidden; text-overflow: ellipsis; color: var(--accent); padding-right: 1rem; }
+.mk-status-right { display: flex; align-items: center; gap: 0.8rem; flex: none; }
+.mk-status-item { color: var(--muted); }
+.mk-status-item.mk-pct { color: var(--accent); font-weight: 700; }
+
+/* ---------------- help ---------------- */
 .mk-help { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); }
 .mk-help-inner { border: 1px solid var(--dimline); background: #fff; padding: 1rem 1.6rem; font-size: 0.9rem; min-width: 34em; color: #000; }
 .mk-help h4 { margin: 0 0 0.5rem; color: var(--accent); }
@@ -138,7 +148,7 @@ a:hover { color: var(--accent-strong); }
 .mk-help td:first-child { text-align: right; font-weight: 700; }
 .mk-help-close { color: var(--muted); margin: 0.7rem 0 0; }
 
-/* ---------- narrow screens ---------- */
+/* ---------------- narrow screens ---------------- */
 @media (max-width: 760px) {
   .mk-panel { position: fixed; left: 0; top: 0; z-index: 50; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.5); }
   .mk-main { width: 100%; }

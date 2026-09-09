@@ -1,14 +1,71 @@
 <script setup lang="ts">
-// ASCII minimal Layout: left directory tree + content, hjkl key handling.
-// No chrome from the default theme, no animations. SSR-safe: all listeners
-// (keyboard/history/localStorage) are attached after mount.
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { Content, withBase } from 'vitepress'
+// ASCII minimal Layout: left directory tree + content, hjkl keys,
+// bottom status bar (current location / reading %) and per-page scroll memory.
+// SSR-safe: all listeners and window logic are attached after mount.
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { Content, withBase, useRoute, onContentUpdated } from 'vitepress'
 import SiteTree from './SiteTree.vue'
+import { NAV, type NavNode } from './nav'
 
+const SCROLL_KEY = 'mk.scroll.positions'
+
+const route = useRoute()
 const treeRef = ref<InstanceType<typeof SiteTree> | null>(null)
-const open = ref(true)          // initial state identical for SSR/client (not persisted)
+const open = ref(true)
 const showHelp = ref(false)
+const crumbs = ref('')
+const rawPath = ref('')
+const pct = ref(0)
+let lastPath = route.path
+let ticking = false
+
+// ---------- bottom status bar data ----------
+function findCrumbs(path: string, nodes: NavNode[] = NAV, acc: string[] = []): string[] | null {
+  for (const n of nodes) {
+    if (n.kind === 'page') {
+      if (n.path === path) return [...acc, n.title]
+    } else {
+      const r = findCrumbs(path, n.children, [...acc, n.title])
+      if (r) return r
+    }
+  }
+  return null
+}
+function updateLocation() {
+  rawPath.value = route.path
+  const bc = findCrumbs(route.path)
+  crumbs.value = bc ? bc.join(' / ') : route.path === '/' ? '学习地图' : route.path
+}
+function calcPct(): number {
+  const max = document.documentElement.scrollHeight - window.innerHeight
+  return max > 0 ? Math.min(100, Math.max(0, Math.round((window.scrollY / max) * 100))) : 0
+}
+function onScroll() {
+  if (ticking) return
+  ticking = true
+  requestAnimationFrame(() => { ticking = false; pct.value = calcPct() })
+}
+
+// ---------- per-page scroll memory (sessionStorage) ----------
+function readPositions(): Record<string, number> {
+  try { return JSON.parse(sessionStorage.getItem(SCROLL_KEY) || '{}') } catch { return {} }
+}
+function savePos(path: string) {
+  if (typeof window === 'undefined') return
+  try {
+    const m = readPositions()
+    m[path] = window.scrollY
+    sessionStorage.setItem(SCROLL_KEY, JSON.stringify(m))
+  } catch { /* ignore */ }
+}
+function restorePos() {
+  const y = readPositions()[route.path]
+  // wait for the new page to render, then jump (overrides VitePress top scroll)
+  nextTick(() => setTimeout(() => window.scrollTo(0, y ?? 0), 30))
+  pct.value = 0
+}
+
+// ---------- keys ----------
 const helpRows = [
   ['j / k', '光标下/上移 (树内)'],
   ['l / Enter', '展开组 / 打开单元'],
@@ -29,7 +86,7 @@ function onKey(e: KeyboardEvent) {
   if (isTypingTarget(e)) return
   const k = e.key
   if (k === '?') { showHelp.value = !showHelp.value; e.preventDefault(); return }
-  if (showHelp.value) { showHelp.value = false; return }   // any key dismisses help
+  if (showHelp.value) { showHelp.value = false; return }
   if (open.value) {
     switch (k) {
       case 'j': treeRef.value?.moveDown(); e.preventDefault(); break
@@ -50,8 +107,32 @@ function onKey(e: KeyboardEvent) {
     }
   }
 }
-onMounted(() => { window.addEventListener('keydown', onKey) })
-onBeforeUnmount(() => { window.removeEventListener('keydown', onKey) })
+
+// route changes: save old page scroll, update the status bar, restore new page
+watch(() => route.path, (n, o) => {
+  if (o && o !== n) savePos(o)
+  lastPath = n
+  updateLocation()
+  restorePos()
+})
+onContentUpdated(() => {
+  updateLocation()
+  pct.value = calcPct()
+})
+
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  window.addEventListener('scroll', onScroll, { passive: true })
+  updateLocation()
+  pct.value = calcPct()
+  restorePos()
+  window.addEventListener('beforeunload', () => savePos(lastPath))
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('beforeunload', () => savePos(lastPath))
+})
 </script>
 
 <template>
@@ -70,6 +151,16 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', onKey) })
     <main class="mk-main" :class="{ 'mk-nopanel': !open }">
       <div class="mk-content"><Content /></div>
     </main>
+
+    <!-- bottom status bar: current location / reading progress / extensible -->
+    <footer class="mk-status" aria-label="status">
+      <span class="mk-status-left" :title="rawPath">&gt; {{ crumbs }}</span>
+      <span class="mk-status-right">
+        <span class="mk-status-item mk-pct">{{ pct }}%</span>
+        <span class="mk-status-item">t:nav</span>
+        <span class="mk-status-item">?:help</span>
+      </span>
+    </footer>
 
     <div v-if="showHelp" class="mk-help" @click="showHelp = false">
       <div class="mk-help-inner">

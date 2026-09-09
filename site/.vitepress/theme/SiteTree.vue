@@ -145,7 +145,7 @@ onMounted(() => { seedExpandedOnce(); loadExpanded(); syncCursorToRoute() })
     <template v-for="(r, i) in rows" :key="r.key">
       <button
         v-if="r.isGroup"
-        class="mk-line"
+        class="mk-line mk-group"
         :class="{ 'mk-cur': i === cursor }"
         :aria-expanded="r.expanded"
         @click="onRowClick(i, true)"
