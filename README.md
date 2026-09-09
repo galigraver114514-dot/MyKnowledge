@@ -24,9 +24,10 @@ MyKnowledge/
 │   └── math/                    # Math course: 2 units (and growing)
 ├── scripts/gen-catalog.mjs      # doc->page pipeline: scans site/, emits catalog.gen.ts
 ├── specs/
-│   ├── data-model.md            # data model & tracking semantics spec v1 (Chinese docs)
+│   ├── data-model.md            # data model & tracking semantics spec v1
 │   ├── document-api.md          # authoring contract: write content, system does the rest
 │   └── node-model.md            # node/cluster/dimension model + node-mode API (v0.1)
+├── LICENSE                      # MIT license
 ├── tracker/                     # local data layer (zero dependency, decoupled from the site)
 │   ├── db.js                    # IndexedDB wrapper: write / state / export / import / snapshot
 │   ├── demo.html                # manual verification page (Chinese UI)
@@ -74,7 +75,7 @@ page action -> recordEvent (append-only, single-tx commit = durable)
             -> export JSON = offline restore copy; x5 local snapshots = in-browser rollback; import is idempotent
 ```
 
-Semantics (event types, reduction rules, migration policy): `specs/data-model.md` (Chinese).
+Semantics (event types, reduction rules, migration policy): `specs/data-model.md`.
 
 ## Restore playbook
 
@@ -107,14 +108,21 @@ Semantics (event types, reduction rules, migration policy): `specs/data-model.md
   (tables/definitions)
   * per-unit NodeView on nodeMode pages (runtime cluster aggregation over the
     active dimension, multi-color)
-  * /graph "学习图谱": whole-graph view joining all units (same-name concepts
-    merged across chapters, click-through to unit pages, dimension switch)
+  * /graph "Knowledge graph": whole-graph view joining all units (same-name
+    concepts merged across chapters, click-through to unit pages, dimension switch)
   * remaining: AI hooks (origin=ai-auto), smooth-edge checker, graph edges
 - Spaced repetition: add new event types later (backward compatible, schema v1)
 
 ## Conventions
 
-- Commit messages are written in **English**; code comments in this repo are in English
-  (long-form Chinese docs: `specs/data-model.md`, framework doc).
+- Commit messages and code comments are written in **English**; specs under
+  `specs/` are in English (the problem-solving framework doc remains Chinese).
+- UI language: EN (default) / 中文 / 日本語, switchable in the panel header or
+  status bar; applies to UI chrome and scaffold pages (learning content keeps
+  its own language).
 - Pushes to GitHub are **manual only** - changes are committed locally, you push when ready.
 - README is kept up to date with the current state of the project.
+
+## License
+
+[MIT](LICENSE) - Copyright (c) 2026 Galigraver.
