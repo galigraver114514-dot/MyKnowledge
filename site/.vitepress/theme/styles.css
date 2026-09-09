@@ -74,9 +74,10 @@ a:hover { color: var(--accent-strong); }
 /* group/branch header rows: blue highlight */
 .mk-line.mk-group { color: var(--accent); font-weight: 700; }
 .mk-line.mk-group:hover { color: var(--accent-strong); }
-/* cursor row stays black/white invert (must come after .mk-group) */
-.mk-line.mk-cur { background: var(--inv-bg); color: var(--inv-fg); }
-.mk-cur .mk-guide, .mk-cur .mk-exp, .mk-cur .mk-mark { color: var(--inv-fg); }
+/* cursor row highlight: blue background with white text (current file row)
+   (must come after .mk-group so it wins) */
+.mk-line.mk-cur { background: var(--accent); color: #ffffff; }
+.mk-cur .mk-guide, .mk-cur .mk-exp, .mk-cur .mk-mark { color: #ffffff; }
 .mk-current-page:not(.mk-cur) { font-weight: 700; color: var(--accent); }
 .mk-current-page:not(.mk-cur) .mk-guide { color: var(--muted); }
 .mk-empty { color: var(--muted); padding: 0.3rem 0.7rem; font-size: 0.85rem; }

@@ -42,10 +42,11 @@ npm run demo         # 3) tracker demo page    (http://localhost:4173)
 ## UI & keys (ASCII terminal)
 
 - White background, black monospace text; unified **blue** highlight for
-  selection, links, code, the current page and progress markers.
+  selection, links, code, the current page, progress markers and the tree
+  cursor row.
 - Left panel: pure-text collapsible tree (`|--` / ``-- ` / `|`), first visit
-  expands fully; expand state persisted in localStorage; `>` cursor row
-  (black/white invert), `*` marks the current page.
+  expands fully; expand state persisted in localStorage; `>` cursor row has a
+  blue background (white text), `*` marks the current page.
 - Keys (vim-like; `?` for help):
 
 | key | tree open | tree hidden |
