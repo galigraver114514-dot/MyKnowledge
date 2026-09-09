@@ -11,3 +11,6 @@ Thumbs.db
 
 # 行为数据导出默认放本地, 不入库(可复原性靠 tracker 导出, 非 git)
 exports/
+
+# playwright browsers cache (never commit)
+.pw-browsers/
