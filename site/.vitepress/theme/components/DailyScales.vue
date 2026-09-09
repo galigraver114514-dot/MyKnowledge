@@ -109,9 +109,15 @@ async function save() {
   }
   finally { saving.value = false }
 }
-async function clearDay() {
+// two-step in-page confirm (no native window.confirm)
+const confirmClear = ref(false)
+function onClearClick() {
+  if (confirmClear.value) performClear()
+  else { confirmClear.value = true; msg.value = '' }
+}
+function cancelClear() { confirmClear.value = false }
+async function performClear() {
   if (saving.value) return
-  if (!window.confirm('clear ' + selectedDate.value + ' mot/conc record?')) return
   saving.value = true
   saveErr.value = ''
   try {
@@ -125,7 +131,7 @@ async function clearDay() {
     saveErr.value = (e as Error).message || String(e)
     console.error('[DailyScales clear]', e)
   }
-  finally { saving.value = false }
+  finally { saving.value = false; confirmClear.value = false }
 }
 
 // ---------- line chart (pixel width, no stretching) ----------
@@ -234,8 +240,15 @@ onBeforeUnmount(() => {
         <button v-for="k in 10" :key="k" class="ds-box"
           :style="[{ borderColor: METRICS[mode].solid }, (mode === 'mot' ? mot : conc) >= k ? { background: METRICS[mode].solid, color: '#fff' } : {}]"
           @click="setScore(k)">{{ k }}</button>
-        <button class="ds-save" :disabled="saving" @click="save">[ 保存 ]</button>
-        <button class="ds-clear" :disabled="saving" @click="clearDay">[ 清空 ]</button>
+        <template v-if="!confirmClear">
+          <button class="ds-save" :disabled="saving" @click="save">[ 保存 ]</button>
+          <button class="ds-clear" :disabled="saving" @click="onClearClick">[ 清空 ]</button>
+        </template>
+        <template v-else>
+          <span class="ds-clearask">clear {{ selectedDate }} mot/conc ?</span>
+          <button class="ds-clear ds-clear-yes" :disabled="saving" @click="onClearClick">[ 确认清空 ]</button>
+          <button class="ds-save" :disabled="saving" @click="cancelClear">[ 取消 ]</button>
+        </template>
         <span class="ds-msg">{{ msg }}</span>
         <span v-if="saveErr" class="ds-err">! {{ saveErr }}</span>
       </div>
@@ -310,6 +323,8 @@ onBeforeUnmount(() => {
   cursor: pointer; font: inherit; padding: 0.2rem 0.7rem;
 }
 .ds-clear:hover:not(:disabled) { background: var(--err); color: #fff; border-color: var(--err); }
+.ds-clear-yes { background: var(--err); color: #fff; border-color: var(--err); font-weight: 700; }
+.ds-clearask { color: var(--err); font-size: 0.85rem; }
 .ds-msg { color: var(--muted); font-size: 0.82rem; }
 .ds-chart { position: relative; overflow-x: auto; border: 1px solid var(--dimline); background: #fff; }
 .ds-chart svg { display: block; }
