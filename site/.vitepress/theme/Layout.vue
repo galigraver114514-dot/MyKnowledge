@@ -2,7 +2,7 @@
 // ASCII minimal Layout: left directory tree + content, hjkl keys,
 // bottom status bar (current location / reading %) and per-page scroll memory.
 // SSR-safe: all listeners and window logic are attached after mount.
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Content, withBase, useRoute, onContentUpdated } from 'vitepress'
 import SiteTree from './SiteTree.vue'
 import { NAV, type NavNode } from './nav'
@@ -46,23 +46,43 @@ function onScroll() {
   requestAnimationFrame(() => { ticking = false; pct.value = calcPct() })
 }
 
-// ---------- per-page scroll memory (sessionStorage) ----------
+// ---------- per-page scroll memory (localStorage) ----------
+// VitePress natively scrolls to top after a link navigation (router.js), so a
+// plain 30ms restore loses the race. Strategy: wait until the page is tall
+// enough for the saved offset (or a 2s deadline), set it, then re-assert once
+// ~300ms later (only upward: never yank the user back down).
 function readPositions(): Record<string, number> {
-  try { return JSON.parse(sessionStorage.getItem(SCROLL_KEY) || '{}') } catch { return {} }
+  try { return JSON.parse(localStorage.getItem(SCROLL_KEY) || '{}') } catch { return {} }
 }
 function savePos(path: string) {
   if (typeof window === 'undefined') return
   try {
     const m = readPositions()
     m[path] = window.scrollY
-    sessionStorage.setItem(SCROLL_KEY, JSON.stringify(m))
+    localStorage.setItem(SCROLL_KEY, JSON.stringify(m))
   } catch { /* ignore */ }
 }
 function restorePos() {
-  const y = readPositions()[route.path]
-  // wait for the new page to render, then jump (overrides VitePress top scroll)
-  nextTick(() => setTimeout(() => window.scrollTo(0, y ?? 0), 30))
+  const y = readPositions()[route.path] ?? 0
   pct.value = 0
+  if (typeof window === 'undefined') return
+  if (y <= 0) { window.scrollTo(0, 0); return }
+  const start = Date.now()
+  const apply = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight
+    window.scrollTo(0, Math.min(y, Math.max(0, max)))
+    pct.value = calcPct()
+  }
+  const waitUntilTall = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight
+    if (max >= y || Date.now() - start > 2000) apply()
+    else setTimeout(waitUntilTall, 70)
+  }
+  waitUntilTall()
+  // re-assert after VitePress / async content settle (upward only)
+  setTimeout(() => {
+    if (window.scrollY < y - 8) apply()
+  }, 300)
 }
 
 // ---------- keys ----------
@@ -117,7 +137,7 @@ watch(() => route.path, (n, o) => {
 })
 onContentUpdated(() => {
   updateLocation()
-  pct.value = calcPct()
+  restorePos()
 })
 
 onMounted(() => {
