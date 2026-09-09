@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ProgressPanel —— ASCII 版: 进度行 + [x] 列表, 无卡片。
 import { ref, computed, onMounted } from 'vue'
+import { withBase } from 'vitepress'
 import { openDB, getState } from '../../../../tracker/db.js'
 
 const UNITS = [
@@ -59,7 +60,7 @@ onMounted(async () => {
         <p class="pp-total">TOTAL: {{ all.done }}/{{ all.total }} [{{ bar(all.done, all.total) }}]</p>
         <div v-for="(units, course) in courses" :key="course" class="pp-course">
           <p class="pp-head">{{ pad(course, 10) }} {{ stat(units).done }}/{{ stat(units).total }} [{{ bar(stat(units).done, stat(units).total) }}]</p>
-          <p v-for="u in units" :key="u.id" class="pp-unit"><span class="pp-m">{{ m(u) }}</span> <a :href="u.path">{{ u.title }}</a></p>
+          <p v-for="u in units" :key="u.id" class="pp-unit"><span class="pp-m">{{ m(u) }}</span> <a :href="withBase(u.path)">{{ u.title }}</a></p>
         </div>
       </template>
     </template>

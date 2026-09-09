@@ -1,19 +1,19 @@
-/* ============ MyKnowledge: 真·硬核 ASCII 终端主题 ============ */
-/* 黑底绿字, 纯等宽, 零图形(无圆角/阴影/图标/卡片), 零动画 */
+/* ============ MyKnowledge: ASCII 终端主题 · 白底黑字单色版 ============ */
+/* 等宽/纯文本/零动画; 白底黑字, 仅剩灰阶层级 */
 :root {
-  --bg: #000;
-  --bg2: #0a0b0a;
-  --fg: #a8b2ad;
-  --fg-bright: #d8ded9;
-  --muted: #4d5750;
-  --dimline: #1e241f;
-  --accent: #4ade80;            /* 终端绿 */
-  --accent-dim: #1f4d30;
-  --err: #f87171;
-  --code-bg: #0d0f0d;
-  --sel: rgba(74, 222, 128, 0.16);
-  --inv-bg: #4ade80;            /* 反色光标行 */
-  --inv-fg: #000;
+  --bg: #ffffff;
+  --bg2: #f6f6f6;
+  --fg: #000000;
+  --fg-bright: #000000;
+  --muted: #737373;
+  --dimline: #d6d6d6;
+  --accent: #000000;
+  --accent-dim: #9c9c9c;
+  --err: #b00020;
+  --code-bg: #f4f4f4;
+  --sel: rgba(0, 0, 0, 0.12);
+  --inv-bg: #000000;
+  --inv-fg: #ffffff;
   --mono: "SF Mono","JetBrains Mono","Fira Code",Menlo,Consolas,"Liberation Mono","Courier New","Noto Sans Mono CJK SC","PingFang SC",monospace;
 }
 * { box-sizing: border-box; }
@@ -25,9 +25,9 @@ body {
 }
 * { transition: none !important; animation: none !important; }
 ::selection { background: var(--sel); }
-a { color: var(--accent); text-decoration: none; }
-a:hover { color: var(--fg-bright); text-decoration: none; }
-:focus-visible { outline: 1px dashed var(--accent); outline-offset: 1px; }
+a { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+a:hover { color: var(--fg); }
+:focus-visible { outline: 1px dashed #000; outline-offset: 1px; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--dimline); }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -43,36 +43,34 @@ a:hover { color: var(--fg-bright); text-decoration: none; }
   display: flex; align-items: baseline; justify-content: space-between;
   padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--dimline);
 }
-.mk-brand { font-weight: 700; color: var(--accent); }
-.mk-brand:hover { color: var(--fg-bright); }
+.mk-brand { font-weight: 700; color: #000; text-decoration: none; }
+.mk-brand:hover { color: #000; text-decoration: underline; }
 .mk-ghost {
   border: 0; background: none; color: var(--muted); cursor: pointer;
   font: inherit; font-size: 0.85rem; padding: 0; line-height: 1;
 }
-.mk-ghost:hover { color: var(--fg-bright); }
+.mk-ghost:hover { color: #000; }
 .mk-tree-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0.3rem 0.4rem 0.3rem 0.3rem; }
 .mk-keys {
   border-top: 1px solid var(--dimline); padding: 0.45rem 0.8rem;
   color: var(--muted); font-size: 0.76rem; line-height: 1.7; white-space: pre;
 }
 
-/* ---------------- ASCII 树: 对齐关键 --------------- */
+/* ---------------- ASCII 树 ---------------- */
 .mk-tree { font-size: 14px; line-height: 1.7; }
-/* button/a 复位: 去默认内边距/边框 —— 否则缩进错位 */
 .mk-line {
   display: block; width: 100%; margin: 0; padding: 0 2px 0 0;
   border: 0; background: none; text-align: left;
   color: var(--fg); cursor: pointer; font: inherit;
-  line-height: 1.7; white-space: pre;
+  line-height: 1.7; white-space: pre; text-decoration: none;
 }
 .mk-line .mk-guide { color: var(--muted); }
 .mk-line .mk-exp { color: var(--accent-dim); }
-.mk-line:hover { color: var(--fg-bright); }
-.mk-line:hover .mk-guide, .mk-line:hover .mk-exp { color: var(--accent); }
+.mk-line:hover { color: #000; }
+.mk-line:hover .mk-guide { color: var(--muted); }
 .mk-cur { background: var(--inv-bg); color: var(--inv-fg); }
 .mk-cur .mk-guide, .mk-cur .mk-exp, .mk-cur .mk-mark { color: var(--inv-fg); }
-.mk-current-page:not(.mk-cur) { color: var(--accent); }
-.mk-current-page:not(.mk-cur) .mk-guide { color: var(--accent-dim); }
+.mk-current-page:not(.mk-cur) { font-weight: 700; }
 .mk-empty { color: var(--muted); padding: 0.4rem 0.7rem; font-size: 0.85rem; }
 
 .mk-openbtn {
@@ -80,62 +78,60 @@ a:hover { color: var(--fg-bright); text-decoration: none; }
   background: var(--bg2); color: var(--muted);
   border: 1px solid var(--dimline); border-left: 0;
   padding: 0.3rem 0.7rem; cursor: pointer; font: inherit; font-size: 0.84rem;
+  text-decoration: none;
 }
-.mk-openbtn:hover { color: var(--accent); }
+.mk-openbtn:hover { color: #000; }
 
 .mk-main { flex: 1; min-width: 0; }
 .mk-content { max-width: 58em; margin: 0 auto; padding: 1.6rem 1.4rem 6rem; }
 
-/* ---------------- 正文: 纯文本终端排版 ---------------- */
+/* ---------------- 正文 ---------------- */
 .mk-content h1 {
-  font-size: 1.3rem; font-weight: 700; color: var(--fg-bright);
+  font-size: 1.3rem; font-weight: 700; color: #000;
   margin: 0 0 1rem; line-height: 1.35; border: 0;
 }
-/* 硬核: 标题自带 md 源式前缀 # */
 .mk-content h2::before, .mk-content h3::before, .mk-content h4::before { color: var(--accent-dim); user-select: none; }
 .mk-content h2::before { content: '## '; }
 .mk-content h3::before { content: '### '; }
 .mk-content h4::before { content: '#### '; }
-.mk-content h2 { font-size: 1.08rem; font-weight: 700; color: var(--fg-bright); margin: 1.7rem 0 0.45rem; }
-.mk-content h3 { font-size: 1rem; font-weight: 700; color: var(--fg-bright); margin: 1.35rem 0 0.35rem; }
-.mk-content h4, .mk-content h5 { font-size: 0.95rem; font-weight: 700; color: var(--fg-bright); margin: 1rem 0 0.3rem; }
+.mk-content h2 { font-size: 1.08rem; font-weight: 700; color: #000; margin: 1.7rem 0 0.45rem; }
+.mk-content h3 { font-size: 1rem; font-weight: 700; color: #000; margin: 1.35rem 0 0.35rem; }
+.mk-content h4, .mk-content h5 { font-size: 0.95rem; font-weight: 700; color: #000; margin: 1rem 0 0.3rem; }
 .mk-content p { margin: 0.5rem 0; }
-/* ul: 用 ASCII '-' 代替圆点 */
 .mk-content ul { list-style: none; margin: 0.5rem 0; padding-left: 0; }
 .mk-content ul > li { padding-left: 2ch; text-indent: -2ch; }
 .mk-content ul > li::before { content: '- '; color: var(--accent-dim); }
 .mk-content ol { margin: 0.5rem 0; padding-left: 2.4em; }
 .mk-content li { margin: 0.12rem 0; }
-.mk-content li > input[type="checkbox"] { margin: 0 0.5em 0 0; accent-color: var(--accent); }
+.mk-content li > input[type="checkbox"] { margin: 0 0.5em 0 0; accent-color: #000; }
 .mk-content blockquote {
   margin: 0.7rem 0; padding-left: 1ch; color: var(--muted);
   border-left: 1px solid var(--dimline);
 }
 .mk-content blockquote p { margin: 0.2rem 0; }
-/* 表格: 无竖线, 仅横向分隔(像排版文本) */
 .mk-content table { border-collapse: collapse; margin: 0.8rem 0; display: block; overflow-x: auto; font-size: 0.92rem; }
 .mk-content th, .mk-content td { border: 0; border-bottom: 1px dashed var(--dimline); padding: 0.22rem 1.2rem 0.22rem 0; text-align: left; vertical-align: top; }
-.mk-content thead th { border-bottom: 1px solid var(--muted); color: var(--accent); font-weight: 700; }
+.mk-content thead th { border-bottom: 1px solid #000; font-weight: 700; color: #000; }
 .mk-content tbody tr:last-child td { border-bottom: 0; }
-.mk-content code { background: var(--code-bg); color: var(--accent); padding: 0.05rem 0.3rem; font-size: 0.92em; }
+.mk-content code { background: var(--code-bg); color: #000; padding: 0.05rem 0.3rem; font-size: 0.92em; }
 .mk-content pre { background: var(--code-bg); padding: 0.7rem 0.9rem; overflow-x: auto; line-height: 1.55; border: 1px solid var(--dimline); }
-.mk-content pre code { background: none; color: var(--fg); padding: 0; }
+.mk-content pre code { background: none; color: #000; padding: 0; }
 .mk-content hr { border: 0; border-top: 1px dashed var(--muted); margin: 1.6rem 0; }
 .mk-content img { max-width: 100%; }
 .mk-content .header-anchor { color: var(--accent-dim); }
-.mk-content strong { font-weight: 700; color: var(--fg-bright); }
-.mk-content em { color: var(--fg-bright); }
+.mk-content strong { font-weight: 700; color: #000; }
+.mk-content em { color: #000; }
 
-/* ---------------- 帮助 (纯文本) ---------------- */
-.mk-help { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.85); }
-.mk-help-inner { border: 1px solid var(--dimline); background: var(--bg); padding: 1rem 1.6rem; font-size: 0.9rem; min-width: 34em; }
-.mk-help h4 { margin: 0 0 0.5rem; color: var(--accent); }
-.mk-help td { padding: 0.15rem 0.6rem; color: var(--fg); white-space: pre; }
-.mk-help td:first-child { color: var(--accent); text-align: right; }
+/* ---------------- 帮助 ---------------- */
+.mk-help { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.5); }
+.mk-help-inner { border: 1px solid var(--dimline); background: #fff; padding: 1rem 1.6rem; font-size: 0.9rem; min-width: 34em; color: #000; }
+.mk-help h4 { margin: 0 0 0.5rem; color: #000; }
+.mk-help td { padding: 0.15rem 0.6rem; color: #000; white-space: pre; }
+.mk-help td:first-child { text-align: right; font-weight: 700; }
 .mk-help-close { color: var(--muted); margin: 0.7rem 0 0; }
 
 /* ---------------- 窄屏 ---------------- */
 @media (max-width: 760px) {
-  .mk-panel { position: fixed; left: 0; top: 0; z-index: 50; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.7); }
+  .mk-panel { position: fixed; left: 0; top: 0; z-index: 50; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.5); }
   .mk-main { width: 100%; }
 }

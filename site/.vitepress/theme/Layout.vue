@@ -1,10 +1,9 @@
 <script setup lang="ts">
 // ASCII 极简 Layout: 左目录树 + 正文, hjkl 键控, 零图形/动画。
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { Content, useRouter } from 'vitepress'
+import { Content, withBase } from 'vitepress'
 import SiteTree from './SiteTree.vue'
 
-const router = useRouter()
 const treeRef = ref<InstanceType<typeof SiteTree> | null>(null)
 const open = ref(true)
 const showHelp = ref(false)
@@ -57,7 +56,7 @@ onBeforeUnmount(() => { window.removeEventListener('keydown', onKey) })
   <div class="mk">
     <aside v-if="open" class="mk-panel">
       <div class="mk-panel-top">
-        <a class="mk-brand" href="/" @click.prevent="router.go('/')">MyKnowledge</a>
+        <a class="mk-brand" :href="withBase('/')">MyKnowledge</a>
         <button class="mk-ghost" title="收起 (Esc/t)" aria-label="收起" @click="open = false">x</button>
       </div>
       <SiteTree ref="treeRef" class="mk-tree-scroll" />
