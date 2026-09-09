@@ -53,6 +53,13 @@ a:hover { color: var(--accent-strong); }
   font: inherit; font-size: 0.85rem; padding: 0; line-height: 1;
 }
 .mk-ghost:hover { color: #000; }
+.mk-panel-right { display: inline-flex; align-items: baseline; gap: 0.6rem; }
+.mk-lang, .mk-lang-mini {
+  border: 1px solid var(--dimline); background: none; color: var(--muted);
+  cursor: pointer; font: inherit; font-size: 0.72rem; padding: 0.05rem 0.4rem;
+}
+.mk-lang:hover, .mk-lang-mini:hover { color: var(--accent); border-color: var(--accent); }
+.mk-lang-mini { background: var(--bg2); }
 .mk-tree-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0.2rem 0.4rem 0.2rem 0.3rem; }
 .mk-keys {
   border-top: 1px solid var(--dimline); padding: 0.35rem 0.75rem;

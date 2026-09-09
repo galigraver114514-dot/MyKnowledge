@@ -7,6 +7,8 @@ import { ref, computed } from 'vue'
 import { withBase } from 'vitepress'
 import raw from '../nodes.gen.json'
 import { PAGE_META } from '../nav'
+import { useT } from '../i18n'
+const { t } = useT()
 
 interface NodeT {
   id: string; name: string; kind: string; origin: string
@@ -78,9 +80,9 @@ const clusterStyle = (i: number) => ({ '--nv-h': hueOf(i) + '' } as Record<strin
     </p>
     <template v-else>
       <div class="gv-head">
-        <span class="gv-title">global node graph</span>
+        <span class="gv-title">{{ t('gv.graph') }}</span>
         <button v-for="d in dims" :key="d" class="gv-dim" :class="{ on: d === active }" @click="active = d">{{ d }}</button>
-        <span class="gv-count">{{ nodeTotal }} concepts · {{ unitCount }} units · {{ clusters.length }} clusters [{{ active || '—' }}]</span>
+        <span class="gv-count">{{ nodeTotal }} {{ t('gv.concepts') }} · {{ unitCount }} {{ t('gv.units') }} · {{ clusters.length }} {{ t('gv.clusters') }} [{{ active || '—' }}]</span>
       </div>
       <div class="gv-grid">
         <div v-for="(c, i) in clusters" :key="c[0]" class="gv-cluster" :style="clusterStyle(i)">
@@ -94,7 +96,7 @@ const clusterStyle = (i: number) => ({ '--nv-h': hueOf(i) + '' } as Record<strin
           </div>
         </div>
       </div>
-      <p class="gv-hint">同一概念出现在多个章节会合并为一个节点（右上角数字 = 出现章节数）；点击节点跳到其单元页。维度切换即切换全局聚类方式。</p>
+      <p class="gv-hint">{{ t('gv.hint') }}</p>
     </template>
   </div>
 </template>

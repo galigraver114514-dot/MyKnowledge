@@ -46,6 +46,9 @@ npm run demo         # 3) tracker demo page    (http://localhost:4173)
 
 ## UI & keys (ASCII terminal)
 
+- UI language: EN (default) / 中文 / 日本語 - switch in the panel header
+  or status bar (persisted); applies to UI chrome & nav labels (learning
+  content keeps its own language)
 - White background, black monospace text; unified **blue** highlight for
   selection, links, code, the current page, progress markers and the tree
   cursor row.

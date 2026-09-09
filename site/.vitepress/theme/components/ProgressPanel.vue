@@ -7,6 +7,8 @@ import { ref, computed, onMounted } from 'vue'
 import { withBase } from 'vitepress'
 import { openDB, getState } from '../../../../tracker/db.js'
 import { UNITS } from '../nav'
+import { useT, zhCourseOf } from '../i18n'
+const { t, lang } = useT()
 
 type Status = 'not_started' | 'in_progress' | 'completed'
 const statusOf = ref<Record<string, Status>>({})
@@ -47,16 +49,16 @@ onMounted(async () => {
 <template>
   <div class="pp">
     <p v-if="error" class="pp-err">! {{ error }}</p>
-    <p v-else-if="!loaded" class="pp-mut">reading local progress ...</p>
+    <p v-else-if="!loaded" class="pp-mut">{{ t('pp.reading') }}</p>
     <template v-else>
       <p v-if="!hasData" class="pp-mut">
-        no local records yet -- open any unit page to start tracking,<br>
-        or seed it via <code>npm run demo</code> (tracker 演示页).
+        {{ t('pp.empty1') }}<br>
+        {{ t('pp.empty2') }}
       </p>
       <template v-else>
-        <p class="pp-total">TOTAL: {{ all.done }}/{{ all.total }} [{{ bar(all.done, all.total) }}]</p>
+        <p class="pp-total">{{ t('pp.total') }}: {{ all.done }}/{{ all.total }} [{{ bar(all.done, all.total) }}]</p>
         <div v-for="(units, course) in courses" :key="course" class="pp-course">
-          <p class="pp-head">{{ pad(course, 10) }} {{ stat(units).done }}/{{ stat(units).total }} [{{ bar(stat(units).done, stat(units).total) }}]</p>
+          <p class="pp-head">{{ pad(zhCourseOf(course, lang), 10) }} {{ stat(units).done }}/{{ stat(units).total }} [{{ bar(stat(units).done, stat(units).total) }}]</p>
           <p v-for="u in units" :key="u.id" class="pp-unit"><span class="pp-m">{{ m(u) }}</span> <a :href="withBase(u.path)">{{ u.title }}</a></p>
         </div>
       </template>

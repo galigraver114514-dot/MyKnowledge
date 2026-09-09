@@ -1,11 +1,11 @@
 {
   "defaultLang": "zh",
-  "courseIndexLabel": "赛道首页",
+  "courseIndexLabel": { "en": "Course", "zh": "赛道首页", "ja": "コース" },
   "labels": {
-    "english": "英语",
-    "math": "数学",
-    "vocab-core": "词汇-核心",
-    "grammar-basics": "基础语法"
+    "english": { "en": "English", "zh": "英语", "ja": "英語" },
+    "math": { "en": "Math", "zh": "数学", "ja": "数学" },
+    "vocab-core": { "en": "Core Vocabulary", "zh": "词汇-核心", "ja": "コア語彙" },
+    "grammar-basics": { "en": "Grammar Basics", "zh": "基础语法", "ja": "基本文法" }
   },
   "dirOrder": {
     "english": ["vocab-core", "grammar-basics"]

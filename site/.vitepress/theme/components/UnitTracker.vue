@@ -5,6 +5,8 @@
 // onMounted, the server only renders the placeholder.
 import { ref, computed, onMounted } from 'vue'
 import { openDB, recordEvent, getUnitState } from '../../../../tracker/db.js'
+import { useT } from '../i18n'
+const { t } = useT()
 
 const props = defineProps<{ unitId: string }>()
 
@@ -19,7 +21,7 @@ const error = ref('')
 let db: IDBDatabase | null = null
 
 const mark = computed(() => (state.value?.status === 'completed' ? '[x]' : state.value?.status === 'in_progress' ? '[~]' : '[ ]'))
-const statusZh = computed(() => (state.value?.status === 'completed' ? '已完成' : state.value?.status === 'in_progress' ? '学习中' : '未开始'))
+const statusTxt = computed(() => (state.value ? t('tr.' + state.value.status) : ''))
 const date = computed(() => state.value?.completedAt?.slice(0, 10) ?? '')
 
 async function ensureDb() { if (!db) db = await openDB(); return db }
@@ -52,12 +54,12 @@ onMounted(async () => {
 <template>
   <div class="ut">
     <p v-if="error" class="ut-err">! {{ error }}</p>
-    <p v-else-if="!state" class="ut-mut">reading local state ...</p>
+    <p v-else-if="!state" class="ut-mut">{{ t('tr.reading') }}</p>
     <template v-else>
-      <p class="ut-line"><span class="ut-mark">{{ mark }}</span> {{ statusZh }}<span> | open:{{ state.openCount }}</span><span v-if="state.completedAt"> | completed: {{ date }}</span><span class="ut-mut"> (local)</span></p>
+      <p class="ut-line"><span class="ut-mark">{{ mark }}</span> {{ statusTxt }}<span> | {{ t('tr.open') }}:{{ state.openCount }}</span><span v-if="state.completedAt"> | {{ t('tr.completedAt') }}: {{ date }}</span><span class="ut-mut"> {{ t('tr.local') }}</span></p>
       <p class="ut-line">
-        <button class="ut-btn" :disabled="busy" @click="onToggle">{{ state.status === 'completed' ? '[ 撤销完成 ]' : '[ 标记完成 ]' }}</button>
-        <span class="ut-mut"> indexdb / 实时落盘</span>
+        <button class="ut-btn" :disabled="busy" @click="onToggle">{{ state.status === 'completed' ? t('tr.undo') : t('tr.do') }}</button>
+        <span class="ut-mut"> {{ t('tr.storage') }}</span>
       </p>
     </template>
   </div>

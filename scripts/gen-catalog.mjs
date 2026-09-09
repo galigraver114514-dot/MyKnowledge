@@ -82,9 +82,10 @@ function getDoc(abs, rel) {
 }
 
 function isAux(name) { return /\.(prompt|node|notes|meta)\.md$/i.test(name) }
+const zhOf = (v) => (v && typeof v === 'object') ? (v.zh || v.en || Object.values(v)[0]) : v
 const labelOf = (rel) => {
   const last = rel.split('/').pop() || rel
-  return (cfg.labels?.[rel]) ?? (cfg.labels?.[last]) ?? last
+  return zhOf((cfg.labels?.[rel]) ?? (cfg.labels?.[last]) ?? last)
 }
 const sortFiles = (a, b) => a.name.localeCompare(b.name, 'zh', { numeric: true })
 
@@ -133,7 +134,7 @@ function buildDir(rel, depth) {
   if (fs.existsSync(indexAbs)) {
     const idx = getDoc(indexAbs, (rel ? rel + '/' : '') + 'index.md')
     const p2 = rel ? '/' + rel + '/' : '/'
-    const nodeTitle = depth === 0 ? (cfg.courseIndexLabel || '赛道首页') : labelOf(rel)
+    const nodeTitle = depth === 0 ? zhOf(cfg.courseIndexLabel || '赛道首页') : labelOf(rel)
     children.push({ kind: 'page', title: idx.fm.navTitle || nodeTitle, path: p2 })
     pageFiles.set(p2, { id: null, created: idx.fm.created || null, lang: idx.fm.lang || null, track: false, title: idx.fm.title || nodeTitle })
   }
@@ -158,7 +159,7 @@ function buildDir(rel, depth) {
   }
   if (!children.length) return null
   const key = rel ? 'g-' + rel.replace(/\//g, '-') : 'g-root'
-  return { kind: 'group', key, title: labelOf(rel), children }
+  return { kind: 'group', key, title: labelOf(rel), children, dir: rel || null }
 }
 for (const f of rootPages) {
   const u = pageNode(f.rel, f.abs, '')

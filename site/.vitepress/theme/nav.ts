@@ -3,7 +3,7 @@
 import { NAV as GEN_NAV, UNITS as GEN_UNITS, PAGE_META as GEN_META, NODE_SPEC as GEN_NODE_SPEC } from './catalog.gen'
 
 export interface NavPage { kind: 'page'; title: string; path: string }
-export interface NavGroup { kind: 'group'; key: string; title: string; children: NavNode[] }
+export interface NavGroup { kind: 'group'; key: string; title: string; children: NavNode[]; dir?: string | null }
 export type NavNode = NavPage | NavGroup
 
 export const NAV = GEN_NAV as NavNode[]

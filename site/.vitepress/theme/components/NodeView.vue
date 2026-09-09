@@ -5,6 +5,9 @@
 // dimension (emergence - no stored cluster table). Equal-weight tokens.
 import { ref, computed } from 'vue'
 import raw from '../nodes.gen.json'
+import { useT } from '../i18n'
+const { t } = useT()
+const UNLABELED = '(unlabeled)'
 
 const props = defineProps<{ pagePath: string }>()
 
@@ -34,7 +37,7 @@ const clusters = computed(() => {
   const map = new Map<string, NodeT[]>()
   for (const n of page.value?.nodes || []) {
     const tag = dim ? (n.labels?.[dim] || [])[0] : null
-    const key = tag || '(未标注)'
+    const key = tag || UNLABELED
     if (!map.has(key)) map.set(key, [])
     map.get(key)!.push(n)
   }
@@ -51,16 +54,16 @@ const tokenStyle = (i: number) => ({ '--nv-h': hueOf(i) + '' } as Record<string,
   <div class="nv">
     <template v-if="page && page.nodes.length">
       <div class="nv-head">
-        <span class="nv-title">node view</span>
+        <span class="nv-title">{{ t('nv.nodeview') }}</span>
         <button
           v-for="d in dims" :key="d" class="nv-dim"
           :class="{ on: d === active }" @click="active = d"
         >{{ d }}</button>
-        <span class="nv-count">{{ page.nodes.length }} nodes · {{ clusters.length }} clusters [{{ active || '—' }}]</span>
+        <span class="nv-count">{{ page.nodes.length }} {{ t('nv.ncount') }} {{ clusters.length }} {{ t('nv.clusters') }} [{{ active || '—' }}]</span>
       </div>
       <div class="nv-grid">
         <div v-for="(c, i) in clusters" :key="c[0]" class="nv-cluster" :style="clusterStyle(i)">
-          <div class="nv-cluster-name">{{ c[0] }} <span class="nv-n">{{ c[1].length }}</span></div>
+          <div class="nv-cluster-name">{{ c[0] === UNLABELED ? t('nv.unlabeled') : c[0] }} <span class="nv-n">{{ c[1].length }}</span></div>
           <div class="nv-tokens">
             <span v-for="(n, j) in c[1]" :key="n.id" class="nv-token" :style="tokenStyle(i)"
               :title="(n.definition || '') + (n.origin ? '  [' + n.origin + ']' : '')">{{ n.name }}</span>
@@ -68,9 +71,7 @@ const tokenStyle = (i: number) => ({ '--nv-h': hueOf(i) + '' } as Record<string,
         </div>
       </div>
     </template>
-    <p v-else class="nv-empty">
-      no node data yet{{ page && !page.nodes.length ? ' (no structured content — ai-auto pending)' : '' }}
-    </p>
+    <p v-else class="nv-empty">{{ t('nv.none') }}</p>
   </div>
 </template>
 

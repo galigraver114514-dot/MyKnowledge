@@ -4,6 +4,13 @@
 // Data: local IndexedDB (event 'daily_scale', per-date latest wins).
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { openDB, recordEvent, getDailyScales, clearDailyScale } from '../../../../tracker/db.js'
+import { useT } from '../i18n'
+const { t } = useT()
+const fmtT = (k: string, m: Record<string, string | number>) => {
+  let s = t(k)
+  for (const key of Object.keys(m)) s = s.split('{' + key + '}').join(String(m[key]))
+  return s
+}
 
 const RANGES = [7, 14, 30, 100]
 const METRICS = {
@@ -102,7 +109,7 @@ async function save() {
     // with the write and occasionally reverted the UI).
     scales.value = { ...scales.value, [ev.payload.date]: { mot: mot.value, conc: conc.value } }
     console.info('[DailyScales] saved event ' + ev.id + ' for ' + ev.payload.date)
-    msg.value = 'saved ' + ev.payload.date + '  mot=' + mot.value + ' conc=' + conc.value
+    msg.value = fmtT('ds.saved', { d: ev.payload.date, m: mot.value, c: conc.value })
   } catch (e) {
     saveErr.value = (e as Error).message || String(e)
     console.error('[DailyScales save]', e)
@@ -115,6 +122,7 @@ function onClearClick() {
   if (confirmClear.value) performClear()
   else { confirmClear.value = true; msg.value = '' }
 }
+const clearAsk = () => fmtT('ds.ask', { d: selectedDate.value })
 function cancelClear() { confirmClear.value = false }
 async function performClear() {
   if (saving.value) return
@@ -126,7 +134,7 @@ async function performClear() {
     const next = { ...scales.value }
     delete next[selectedDate.value]
     scales.value = next
-    msg.value = n ? 'cleared ' + selectedDate.value + ' (' + n + ' event' + (n > 1 ? 's' : '') + ')' : 'no record for ' + selectedDate.value
+    msg.value = n ? fmtT('ds.cleared', { d: selectedDate.value, n }) : fmtT('ds.norecord', { d: selectedDate.value })
   } catch (e) {
     saveErr.value = (e as Error).message || String(e)
     console.error('[DailyScales clear]', e)
@@ -211,11 +219,11 @@ onBeforeUnmount(() => {
 <template>
   <div class="ds">
     <p v-if="error" class="ds-err">! {{ error }}</p>
-    <p v-else-if="!loaded" class="ds-mut">reading local state ...</p>
+    <p v-else-if="!loaded" class="ds-mut">{{ t('ds.reading') }}</p>
     <template v-else>
       <div class="ds-bar">
-        <button v-for="r in RANGES" :key="r" class="ds-range" :class="{ on: r === range }" @click="range = r">{{ r }}d</button>
-        <span class="ds-stats">avg mot {{ chart.avgM }} · conc {{ chart.avgC }}</span>
+        <button v-for="r in RANGES" :key="r" class="ds-range" :class="{ on: r === range }" @click="range = r">{{ r }}{{ t('ds.days') }}</button>
+        <span class="ds-stats">{{ t('ds.avg') }} mot {{ chart.avgM }} · conc {{ chart.avgC }}</span>
       </div>
 
       <!-- metric switch + calendar -->
@@ -223,7 +231,7 @@ onBeforeUnmount(() => {
         <button v-for="m in (['mot', 'conc'] as Metric[])" :key="m" class="ds-mode"
           :class="{ on: mode === m }" :style="mode === m ? { background: METRICS[m].solid, color: '#fff', borderColor: METRICS[m].solid } : {}"
           @click="mode = m">{{ m }}</button>
-        <span class="ds-switch-note">calendar color = active metric · click a day to fill</span>
+        <span class="ds-switch-note">{{ t('ds.calnote') }}</span>
       </div>
       <div class="ds-cal">
         <div v-for="(col, ci) in calendarCols" :key="ci" class="ds-col">
@@ -235,26 +243,26 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- 10-square picker for the active metric on the selected date -->
-      <div class="ds-sec">{{ selectedDate }} · set {{ mode }} (mot {{ mot }} / conc {{ conc }})</div>
+      <div class="ds-sec">{{ selectedDate }} · {{ t('ds.fill') }} {{ mode }} (mot {{ mot }} / conc {{ conc }})</div>
       <div class="ds-picker">
         <button v-for="k in 10" :key="k" class="ds-box"
           :style="[{ borderColor: METRICS[mode].solid }, (mode === 'mot' ? mot : conc) >= k ? { background: METRICS[mode].solid, color: '#fff' } : {}]"
           @click="setScore(k)">{{ k }}</button>
         <template v-if="!confirmClear">
-          <button class="ds-save" :disabled="saving" @click="save">[ 保存 ]</button>
-          <button class="ds-clear" :disabled="saving" @click="onClearClick">[ 清空 ]</button>
+          <button class="ds-save" :disabled="saving" @click="save">{{ t('ds.save') }}</button>
+          <button class="ds-clear" :disabled="saving" @click="onClearClick">{{ t('ds.clear') }}</button>
         </template>
         <template v-else>
-          <span class="ds-clearask">clear {{ selectedDate }} mot/conc ?</span>
-          <button class="ds-clear ds-clear-yes" :disabled="saving" @click="onClearClick">[ 确认清空 ]</button>
-          <button class="ds-save" :disabled="saving" @click="cancelClear">[ 取消 ]</button>
+          <span class="ds-clearask">{{ clearAsk() }}</span>
+          <button class="ds-clear ds-clear-yes" :disabled="saving" @click="onClearClick">{{ t('ds.confirm') }}</button>
+          <button class="ds-save" :disabled="saving" @click="cancelClear">{{ t('ds.cancel') }}</button>
         </template>
         <span class="ds-msg">{{ msg }}</span>
         <span v-if="saveErr" class="ds-err">! {{ saveErr }}</span>
       </div>
 
       <!-- line chart: hover to inspect, no date axis clutter -->
-      <div class="ds-sec">trend (hover for date & values)</div>
+      <div class="ds-sec">{{ t('ds.trend') }}</div>
       <div ref="chartWrap" class="ds-chart" @mousemove="onMove" @mouseleave="hoverIdx = null">
         <svg :width="chart.W" :height="H" role="img" aria-label="mot/concentration trend">
           <g v-for="ty in chart.yticks" :key="ty">
@@ -278,7 +286,7 @@ onBeforeUnmount(() => {
       <div class="ds-legend">
         <span class="ds-legend-item"><i class="ds-dot" style="background:#16803c"></i>mot</span>
         <span class="ds-legend-item"><i class="ds-dot" style="background:#d95c08"></i>conc</span>
-        <span class="ds-note">click square N = score N · save writes to the selected date</span>
+        <span class="ds-note">{{ t('ds.legend') }}</span>
       </div>
     </template>
   </div>

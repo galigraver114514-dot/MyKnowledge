@@ -47,7 +47,8 @@ export const NAV = [
       "title": "Unit 03 学习话题词",
       "path": "/english/vocab-core/unit-03-study-words"
      }
-    ]
+    ],
+    "dir": "english/vocab-core"
    },
    {
     "kind": "group",
@@ -64,9 +65,11 @@ export const NAV = [
       "title": "Unit 02 句子成分",
       "path": "/english/grammar-basics/unit-02-sentence-parts"
      }
-    ]
+    ],
+    "dir": "english/grammar-basics"
    }
-  ]
+  ],
+  "dir": "english"
  },
  {
   "kind": "group",
@@ -88,7 +91,8 @@ export const NAV = [
     "title": "Unit 02 分数速览",
     "path": "/math/unit-02-fractions-basics"
    }
-  ]
+  ],
+  "dir": "math"
  }
 ]
 

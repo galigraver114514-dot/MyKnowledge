@@ -6,6 +6,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, withBase } from 'vitepress'
 import { NAV, MK_TREE_EXPANDED_KEY, type NavNode } from './nav'
+import { useT, courseLabelOf } from './i18n'
 
 const TREE_SCROLL_KEY = 'mk.tree.scroll'
 let scrollRaf = false
@@ -14,6 +15,7 @@ interface Row {
   key: string
   title: string
   path?: string
+  dir?: string | null
   depth: number
   isGroup: boolean
   expanded: boolean
@@ -24,6 +26,12 @@ interface Row {
 }
 
 const route = useRoute()
+const { t, lang } = useT()
+const PAGE_KEYS: Record<string, string> = { '/': 'status.home', '/graph': 'page.graph', '/track': 'page.track', '/english/': 'page.idxEn', '/math/': 'page.idxMath' }
+function nodeTitle(r: Row): string {
+  if (r.isGroup) return r.dir ? courseLabelOf(r.dir, lang.value) : r.title
+  return PAGE_KEYS[r.path as string] ? t(PAGE_KEYS[r.path as string]) : r.title
+}
 // VitePress route.path includes the base prefix (e.g. /MyKnowledge/english/...);
 // normalize to the bare path used by NAV entries.
 function cur(): string {
@@ -46,7 +54,7 @@ function flat(exp: ReadonlySet<string>): Row[] {
         out.push({ key: n.path, title: n.title, path: n.path, depth, isGroup: false, expanded: false, isLast: last, ind, conn, ancestors })
       } else {
         const e = exp.has(n.key)
-        out.push({ key: n.key, title: n.title, depth, isGroup: true, expanded: e, isLast: last, ind, conn, ancestors })
+        out.push({ key: n.key, title: n.title, dir: (n as { dir?: string | null }).dir ?? null, depth, isGroup: true, expanded: e, isLast: last, ind, conn, ancestors })
         if (e) {
           const childInd = depth === 0 ? '' : ind + (last ? '    ' : '|   ')
           walk(n.children, childInd, depth + 1, [...ancestors, n.key])
@@ -191,14 +199,14 @@ onBeforeUnmount(() => { listEl.value?.removeEventListener('scroll', onTreeScroll
         :class="{ 'mk-cur': i === cursor }"
         :aria-expanded="r.expanded"
         @click="onRowClick(i, true)"
-      ><span class="mk-mark">{{ mark(i, r) }}</span><span class="mk-guide">{{ r.ind }}{{ r.conn }}</span>{{ r.title }}<span class="mk-exp">{{ r.expanded ? ' [-] ' : ' [+] ' }}</span></button>
+      ><span class="mk-mark">{{ mark(i, r) }}</span><span class="mk-guide">{{ r.ind }}{{ r.conn }}</span>{{ nodeTitle(r) }}<span class="mk-exp">{{ r.expanded ? ' [-] ' : ' [+] ' }}</span></button>
       <a
         v-else
         class="mk-line"
         :class="{ 'mk-cur': i === cursor, 'mk-current-page': r.path === cur() }"
         :href="withBase(r.path)"
         @click="onRowClick(i, false)"
-      ><span class="mk-mark">{{ mark(i, r) }}</span><span class="mk-guide">{{ r.ind }}{{ r.conn }}</span>{{ r.title }}</a>
+      ><span class="mk-mark">{{ mark(i, r) }}</span><span class="mk-guide">{{ r.ind }}{{ r.conn }}</span>{{ nodeTitle(r) }}</a>
     </template>
     <p v-if="!rows.length" class="mk-empty">(no nodes)</p>
   </nav>

@@ -9,6 +9,8 @@ import SiteTree from './SiteTree.vue'
 const MK_META_KEY = 'mk.page.meta'
 const { frontmatter } = useData()
 import { NAV, PAGE_META, type NavNode } from './nav'
+import { useT, initLang, nextLang, setLang, courseLabelOf } from './i18n'
+const { t, lang } = useT()
 
 const SCROLL_KEY = 'mk.scroll.positions'
 
@@ -53,8 +55,8 @@ function computeMeta() {
   const fm = (frontmatter.value || {}) as Record<string, unknown>
   const cm = PAGE_META[cur()] || {}
   const created = (fm.created as string) || cm.created || '-'
-  const lang = (fm.lang as string) || cm.lang || '-'
-  metaLine.value = 'created: ' + created + ' | chars: ' + cnt + ' | lang: ' + lang
+  const langv = (fm.lang as string) || cm.lang || '-'
+  metaLine.value = t('meta.created') + ': ' + created + ' | ' + t('meta.chars') + ': ' + cnt + ' | ' + t('meta.lang') + ': ' + langv
 }
 function toggleMeta() {
   metaVisible.value = !metaVisible.value
@@ -78,9 +80,9 @@ const nodeOn = computed(() => {
 function findCrumbs(path: string, nodes: NavNode[] = NAV, acc: string[] = []): string[] | null {
   for (const n of nodes) {
     if (n.kind === 'page') {
-      if (n.path === path) return [...acc, n.title]
+      if (n.path === path) return [...acc, nodeTitle(n)]
     } else {
-      const r = findCrumbs(path, n.children, [...acc, n.title])
+      const r = findCrumbs(path, n.children, [...acc, nodeTitle(n)])
       if (r) return r
     }
   }
@@ -142,16 +144,22 @@ function restorePos() {
 
 // ---------- keys ----------
 const helpRows = [
-  ['j / k', '光标下/上移 (树内)'],
-  ['l / Enter', '展开组 / 打开单元'],
-  ['h', '折叠组 / 跳到父组'],
-  ['t', '开/关目录树'],
-  ['Esc', '收起目录树'],
-  ['(树隐藏) j / k', '正文行滚动'],
-  ['(树隐藏) h / l', '后退 / 前进'],
-  ['?', '本帮助'],
-  ['m', '显示/隐藏页面后缀 (创建日期/字数/语言)']
+  ['j / k', 'help.jk'],
+  ['l / Enter', 'help.l'],
+  ['h', 'help.h'],
+  ['t', 'help.t'],
+  ['Esc', 'help.esc'],
+  ['(hidden) j / k', 'help.scroll'],
+  ['(hidden) h / l', 'help.hist'],
+  ['?', 'help.help'],
+  ['m', 'help.m']
 ] as const
+
+const PAGE_KEYS: Record<string, string> = { '/': 'status.home', '/graph': 'page.graph', '/track': 'page.track', '/english/': 'page.idxEn', '/math/': 'page.idxMath' }
+function nodeTitle(n: NavNode): string {
+  if (n.kind === 'group') return n.dir ? courseLabelOf(n.dir, lang.value) : n.title
+  return PAGE_KEYS[n.path] ? t(PAGE_KEYS[n.path]) : n.title
+}
 
 function isTypingTarget(e: KeyboardEvent): boolean {
   const t = e.target as HTMLElement | null
@@ -199,7 +207,9 @@ onContentUpdated(() => {
   if (metaVisible.value) metaTimer = setTimeout(computeMeta, 60)
 })
 
+watch(lang, () => { if (metaVisible.value) metaTimer = setTimeout(computeMeta, 60) })
 onMounted(() => {
+  initLang()
   window.addEventListener('keydown', onKey)
   window.addEventListener('scroll', onScroll, { passive: true })
   updateLocation()
@@ -221,22 +231,25 @@ onBeforeUnmount(() => {
     <aside v-if="open" class="mk-panel">
       <div class="mk-panel-top">
         <a class="mk-brand" :href="withBase('/')">MyKnowledge</a>
-        <button class="mk-ghost" title="收起 (Esc/t)" aria-label="收起" @click="open = false">x</button>
+        <span class="mk-panel-right">
+          <button class="mk-lang" :title="'language: ' + lang.toUpperCase()" @click="setLang(nextLang())">{{ lang.toUpperCase() }}</button>
+          <button class="mk-ghost" title="hide (Esc/t)" aria-label="hide" @click="open = false">x</button>
+        </span>
       </div>
       <SiteTree ref="treeRef" class="mk-tree-scroll" />
-      <div class="mk-keys">j/k move   l open   h fold   m meta   Esc hide   ? help</div>
+      <div class="mk-keys">{{ t('keys.hint') }}</div>
     </aside>
 
-    <button v-if="!open" class="mk-openbtn" title="打开 (t)" @click="open = true">nav [t]</button>
+    <button v-if="!open" class="mk-openbtn" title="open (t)" @click="open = true">{{ t('open.nav') }}</button>
 
     <main class="mk-main" :class="{ 'mk-nopanel': !open }">
       <div class="mk-content"><Content />
         <div v-if="curUnit" class="mk-tracker-auto">
-          <h2>完成记录</h2>
+          <h2>{{ t('sec.done') }}</h2>
           <UnitTracker :unit-id="curUnit" />
         </div>
         <div v-if="nodeOn" class="mk-nodeview-auto">
-          <h2>节点视图</h2>
+          <h2>{{ t('sec.nodes') }}</h2>
           <NodeView :page-path="cur()" />
         </div>
         <div v-if="metaVisible" class="mk-meta">{{ metaLine }}</div>
@@ -250,18 +263,19 @@ onBeforeUnmount(() => {
         <span class="mk-status-item mk-pct">{{ pct }}%</span>
         <span class="mk-status-item">t:nav</span>
         <span class="mk-status-item">?:help</span>
+        <button class="mk-lang-mini" @click="setLang(nextLang())">{{ lang.toUpperCase() }}</button>
       </span>
     </footer>
 
     <div v-if="showHelp" class="mk-help" @click="showHelp = false">
       <div class="mk-help-inner">
-        <h4>keys (vim-like)</h4>
+        <h4>{{ t('help.title') }}</h4>
         <table>
           <tbody>
-            <tr v-for="(r, i) in helpRows" :key="i"><td>{{ r[0] }}</td><td>{{ r[1] }}</td></tr>
+            <tr v-for="(r, i) in helpRows" :key="i"><td>{{ r[0] }}</td><td>{{ t(r[1]) }}</td></tr>
           </tbody>
         </table>
-        <p class="mk-help-close">press any key to close</p>
+        <p class="mk-help-close">{{ t('help.close') }}</p>
       </div>
     </div>
   </div>
