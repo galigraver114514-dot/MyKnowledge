@@ -1,11 +1,12 @@
-// VitePress 默认主题扩展: 全局注册 N5 追踪组件
-import DefaultTheme from 'vitepress/theme'
+// MyKnowledge 极简主题: 完全自绘 Layout, 不使用 VitePress 默认主题 chrome
 import type { Theme } from 'vitepress'
+import Layout from './Layout.vue'
 import UnitTracker from './components/UnitTracker.vue'
 import ProgressPanel from './components/ProgressPanel.vue'
+import './styles.css'
 
 export default {
-  extends: DefaultTheme,
+  Layout,
   enhanceApp({ app }) {
     app.component('UnitTracker', UnitTracker)
     app.component('ProgressPanel', ProgressPanel)

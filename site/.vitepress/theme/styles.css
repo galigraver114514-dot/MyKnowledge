@@ -1,0 +1,123 @@
+/* MyKnowledge 极简主题全局样式: 无动画, 性能/专注优先 */
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #2563eb;
+  --accent-ink: #1d4ed8;
+  --panel-bg: #fafafa;
+  --code-bg: #f4f4f5;
+  --sel: rgba(37, 99, 235, 0.12);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111113;
+    --fg: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #2b2b2e;
+    --accent: #60a5fa;
+    --accent-ink: #93c5fd;
+    --panel-bg: #17171a;
+    --code-bg: #1f1f23;
+    --sel: rgba(96, 165, 250, 0.14);
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: auto; }            /* 绝无平滑滚动 */
+html { color-scheme: light dark; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 16px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+* { transition: none !important; animation: none !important; }  /* 砍掉一切残留动画 */
+::selection { background: var(--sel); }
+a { color: var(--accent-ink); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- 骨架: 左树 + 正文 ---------- */
+.mk { display: flex; min-height: 100vh; align-items: flex-start; }
+.mk-panel {
+  position: sticky; top: 0; height: 100vh; flex: 0 0 250px;
+  display: flex; flex-direction: column;
+  background: var(--panel-bg); border-right: 1px solid var(--border);
+}
+.mk-panel-top { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--border); }
+.mk-brand { font-weight: 700; font-size: 0.95rem; color: var(--fg); letter-spacing: 0.01em; }
+.mk-brand:hover { text-decoration: none; opacity: 0.8; }
+.mk-ghost { border: none; background: none; color: var(--muted); font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 0.1rem 0.4rem; }
+.mk-ghost:hover { color: var(--fg); }
+.mk-tree-scroll { flex: 1; overflow-y: auto; padding: 0.5rem 0.3rem; }
+.mk-keys { border-top: 1px solid var(--border); padding: 0.45rem 0.8rem; color: var(--muted); font-size: 0.72rem; line-height: 1.5; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+/* ---------- 树节点 ---------- */
+.mk-tree { font-size: 0.88rem; }
+.mk-node { line-height: 1.7; }
+.mk-row { display: block; width: 100%; text-align: left; border: none; background: none; color: var(--fg); padding: 0.1rem 0.6rem 0.1rem 0.1rem; cursor: pointer; font: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+a.mk-row:hover { text-decoration: none; }
+.mk-depth-0 .mk-row { padding-left: 0.6rem; }
+.mk-depth-1 .mk-row { padding-left: 1.3rem; }
+.mk-depth-2 .mk-row { padding-left: 2.0rem; }
+.mk-depth-3 .mk-row { padding-left: 2.7rem; }
+.mk-glyph { display: inline-block; width: 1rem; color: var(--muted); }
+.mk-cur > .mk-row { background: var(--sel); }
+.mk-cur > .mk-row, .mk-cur .mk-glyph { color: var(--accent-ink); }
+.mk-current-page > .mk-row { font-weight: 600; }
+.mk-current-page:not(.mk-cur) > .mk-row { color: var(--accent-ink); }
+.mk-empty { color: var(--muted); padding: 0.5rem 0.8rem; font-size: 0.85rem; }
+
+/* 树隐藏时正文全宽 */
+.mk-openbtn {
+  position: fixed; left: 0; bottom: 1rem; z-index: 40;
+  border: 1px solid var(--border); background: var(--panel-bg); color: var(--muted);
+  padding: 0.25rem 0.6rem; cursor: pointer; font-size: 0.78rem; border-left: none;
+  border-radius: 0 6px 6px 0;
+}
+.mk-openbtn:hover { color: var(--fg); }
+
+.mk-main { flex: 1; min-width: 0; }
+.mk-content { max-width: 46rem; margin: 0 auto; padding: 2.2rem 1.6rem 6rem; }
+
+/* ---------- 正文排版 (md 语义元素) ---------- */
+.mk-content h1 { font-size: 1.55rem; line-height: 1.3; margin: 0 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); font-weight: 700; }
+.mk-content h2 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; font-weight: 650; }
+.mk-content h3 { font-size: 1.05rem; margin: 1.6rem 0 0.45rem; font-weight: 650; }
+.mk-content h4, .mk-content h5 { font-size: 0.98rem; margin: 1.2rem 0 0.35rem; font-weight: 650; }
+.mk-content p { margin: 0.6rem 0; line-height: 1.75; }
+.mk-content ul, .mk-content ol { margin: 0.6rem 0; padding-left: 1.4rem; line-height: 1.7; }
+.mk-content li { margin: 0.15rem 0; }
+.mk-content li > input[type="checkbox"] { margin-right: 0.4rem; vertical-align: -0.1em; }
+.mk-content blockquote { margin: 0.8rem 0; padding: 0.15rem 0 0.15rem 0.9rem; border-left: 2px solid var(--border); color: var(--muted); }
+.mk-content blockquote p { margin: 0.3rem 0; }
+.mk-content table { border-collapse: collapse; margin: 0.9rem 0; font-size: 0.9rem; display: block; overflow-x: auto; }
+.mk-content th, .mk-content td { border: 1px solid var(--border); padding: 0.35rem 0.65rem; text-align: left; }
+.mk-content th { font-weight: 600; background: var(--panel-bg); }
+.mk-content code { background: var(--code-bg); padding: 0.08rem 0.3rem; border-radius: 4px; font-size: 0.86em; }
+.mk-content pre { background: var(--code-bg); padding: 0.8rem 1rem; overflow-x: auto; border-radius: 6px; line-height: 1.55; }
+.mk-content pre code { background: none; padding: 0; }
+.mk-content hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.mk-content img { max-width: 100%; }
+.mk-content .header-anchor { color: var(--muted); font-size: 0.8em; margin-left: 0.3em; visibility: hidden; }
+.mk-content h1:hover .header-anchor, .mk-content h2:hover .header-anchor, .mk-content h3:hover .header-anchor { visibility: visible; }
+.mk-content strong { font-weight: 650; }
+
+/* ---------- 帮助浮层 ---------- */
+.mk-help {
+  position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.35);
+}
+.mk-help table { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.4rem; font-size: 0.9rem; }
+.mk-help caption { font-weight: 700; padding-bottom: 0.6rem; text-align: left; }
+.mk-help td { padding: 0.22rem 0.6rem; color: var(--fg); }
+.mk-help td:first-child { text-align: right; }
+.mk-help kbd, .mk-keys kbd { border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 0.35rem; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85em; background: var(--code-bg); }
+.mk-help-close { color: var(--muted); font-size: 0.8rem; margin-top: 0.8rem; }
+
+/* ---------- 窄屏: 面板改浮层 ---------- */
+@media (max-width: 720px) {
+  .mk-panel { position: fixed; left: 0; top: 0; z-index: 50; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.25); }
+  .mk-main { width: 100%; }
+}
