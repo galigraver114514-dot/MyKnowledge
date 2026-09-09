@@ -3,9 +3,12 @@
 // Pure-text connectors (|-- / `-- / |), vim-style '>' cursor line,
 // [+] collapsed / [-] expanded groups. All navigation uses withBase() real
 // hrefs handled by VitePress's own router (no manual router.go calls).
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, withBase } from 'vitepress'
 import { NAV, MK_TREE_EXPANDED_KEY, type NavNode } from './nav'
+
+const TREE_SCROLL_KEY = 'mk.tree.scroll'
+let scrollRaf = false
 
 interface Row {
   key: string
@@ -84,15 +87,36 @@ function ancestorsOfPath(path: string): string[] {
 }
 function syncCursorToRoute() {
   const need = ancestorsOfPath(route.path)
-  for (const k of need) expanded.value.add(k)
+  let changed = false
+  for (const k of need) { if (!expanded.value.has(k)) { expanded.value.add(k); changed = true } }
+  if (changed) saveExpanded()   // auto-expanded ancestors must survive panel close/reopen
   cursor.value = rows.value.findIndex((r) => r.path === route.path)
+}
+function cursorEl(): HTMLElement | null {
+  if (cursor.value == null || !listEl.value) return null
+  const els = listEl.value.querySelectorAll('.mk-line')
+  return (els[cursor.value] as HTMLElement | undefined) ?? null
 }
 function scrollCursorIntoView() {
   requestAnimationFrame(() => {
-    if (cursor.value == null || !listEl.value) return
-    const els = listEl.value.querySelectorAll('.mk-line')
-    ;(els[cursor.value] as HTMLElement | undefined)?.scrollIntoView({ block: 'nearest' })
+    const c = listEl.value, el = cursorEl()
+    if (!c || !el) return
+    const cr = c.getBoundingClientRect(), er = el.getBoundingClientRect()
+    const inside = er.top >= cr.top && er.bottom <= cr.bottom
+    if (!inside) el.scrollIntoView({ block: 'nearest' })
   })
+}
+function onTreeScroll() {
+  if (scrollRaf || !listEl.value) return
+  scrollRaf = true
+  requestAnimationFrame(() => {
+    scrollRaf = false
+    try { localStorage.setItem(TREE_SCROLL_KEY, String(listEl.value?.scrollTop ?? 0)) } catch { /* ignore */ }
+  })
+}
+function restoreTreeScroll() {
+  if (!listEl.value) return
+  try { listEl.value.scrollTop = Number(localStorage.getItem(TREE_SCROLL_KEY) || 0) } catch { /* ignore */ }
 }
 function moveCursor(delta: number) {
   if (!rows.value.length) return
@@ -136,8 +160,18 @@ function mark(i: number, r: Row): string {
 }
 defineExpose({ moveUp, moveDown, activateCurrent, collapseLeft })
 
-watch(() => route.path, () => { seedExpandedOnce(); loadExpanded(); syncCursorToRoute() })
-onMounted(() => { seedExpandedOnce(); loadExpanded(); syncCursorToRoute() })
+watch(() => route.path, () => {
+  seedExpandedOnce(); loadExpanded(); syncCursorToRoute(); scrollCursorIntoView()
+})
+onMounted(() => {
+  seedExpandedOnce(); loadExpanded(); syncCursorToRoute()
+  restoreTreeScroll()
+  try {
+    if (!Number(localStorage.getItem(TREE_SCROLL_KEY) || 0)) scrollCursorIntoView()
+  } catch { scrollCursorIntoView() }
+  listEl.value?.addEventListener('scroll', onTreeScroll, { passive: true })
+})
+onBeforeUnmount(() => { listEl.value?.removeEventListener('scroll', onTreeScroll) })
 </script>
 
 <template>
