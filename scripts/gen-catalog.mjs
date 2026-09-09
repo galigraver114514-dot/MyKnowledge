@@ -10,6 +10,7 @@ const ROOT = path.resolve(import.meta.dirname, '..')
 const SITE = path.join(ROOT, 'site')
 const CFG_PATH = path.join(ROOT, 'site/.vitepress/theme/courses.config.json')
 const OUT = path.join(ROOT, 'site/.vitepress/theme/catalog.gen.ts')
+const NODES_JSON = path.join(ROOT, 'site/.vitepress/theme/nodes.spec.json')
 const CHECK = process.argv.includes('--check')
 
 const cfg = JSON.parse(fs.readFileSync(CFG_PATH, 'utf8'))
@@ -27,7 +28,9 @@ function parseFrontmatter(text) {
     if (i < 0) continue
     const k = line.slice(0, i).trim()
     let v = line.slice(i + 1).trim()
-    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1)
+    if (v.startsWith('[') && v.endsWith(']')) {
+      v = v.slice(1, -1).split(',').map((s) => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean)
+    } else if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1)
     else if (v === 'true') v = true
     else if (v === 'false') v = false
     else if (!isNaN(Number(v)) && v !== '') v = Number(v)
@@ -61,6 +64,7 @@ function walk(dir, rel) {
       dirs.push({ rel: rel ? rel + '/' + e.name : e.name, abs: path.join(dir, e.name) })
       walk(path.join(dir, e.name), rel ? rel + '/' + e.name : e.name)
     } else if (e.name.endsWith('.md')) {
+      if (isAux(e.name)) continue
       if (!rel && e.name !== 'index.md') rootPages.push({ rel: e.name, abs: path.join(dir, e.name) })
     }
   }
@@ -77,6 +81,7 @@ function getDoc(abs, rel) {
   return parsed.get(abs)
 }
 
+function isAux(name) { return /\.(prompt|node|notes|meta)\.md$/i.test(name) }
 const labelOf = (rel) => {
   const last = rel.split('/').pop() || rel
   return (cfg.labels?.[rel]) ?? (cfg.labels?.[last]) ?? last
@@ -91,13 +96,23 @@ function pageNode(fileRel, abs, groupLabel) {
   const title = (doc.fm.title || bodyTitle || slug).replace(/^#\s*/, '')
   if (doc.fm.title === undefined && !bodyTitle) errors.push('missing title (no # H1 and no title:) in ' + fileRel)
   const id = doc.fm.id || fileRel.replace(/\.md$/, '').replace(/\//g, '.')
+  // node-mode config (specs/node-model.md): mode/prompt/dims
+  const prompt = doc.fm.nodePrompt ? String(doc.fm.nodePrompt) : null
+  if (prompt && prompt.endsWith('.md')) {
+    const pf = path.resolve(path.dirname(abs), prompt)
+    if (!fs.existsSync(pf)) errors.push('nodePrompt file not found: ' + prompt + ' (' + fileRel + ')')
+  }
+  const dims = Array.isArray(doc.fm.nodeDims) ? doc.fm.nodeDims : null
+  const mode = doc.fm.nodeMode === true || cfg.nodeModeDefault === true
+  const node = mode || prompt || dims ? { mode: !!mode, prompt, dims, file: fileRel } : null
   return {
     title, path: '/' + fileRel.replace(/\.md$/, ''), id,
     created: doc.fm.created || createdFromGit(fileRel),
     lang: doc.fm.lang || null,
     track: doc.fm.type !== 'page' && doc.fm.track !== false,
     order: doc.fm.order ?? (orderNum ? Number(orderNum) : Infinity),
-    groupLabel
+    groupLabel,
+    node
   }
 }
 
@@ -124,7 +139,7 @@ function buildDir(rel, depth) {
   }
   if (rel) {
     const files = fs.readdirSync(info.abs, { withFileTypes: true })
-      .filter((e) => e.isFile() && e.name.endsWith('.md') && e.name !== 'index.md' && !e.name.startsWith('.'))
+      .filter((e) => e.isFile() && e.name.endsWith('.md') && e.name !== 'index.md' && !e.name.startsWith('.') && !isAux(e.name))
       .map((e) => ({ name: e.name, abs: path.join(info.abs, e.name), rel: rel + '/' + e.name }))
       .sort(sortFiles)
     for (const f of files) {
@@ -181,10 +196,21 @@ lines.push('')
 lines.push('export const UNITS = ' + JSON.stringify(units, null, 1))
 lines.push('')
 const metaObj = {}
-for (const [p, m] of pageFiles) metaObj[p] = { id: m.id ?? null, created: m.created ?? null, lang: m.lang ?? null, track: !!m.track, title: m.title }
+for (const [p, m] of pageFiles) metaObj[p] = {
+  id: m.id ?? null, created: m.created ?? null, lang: m.lang ?? null, track: !!m.track, title: m.title,
+  node: m.node ? { mode: !!m.node.mode, prompt: m.node.prompt, dims: m.node.dims } : null
+}
 lines.push('export const PAGE_META = ' + JSON.stringify(metaObj, null, 1))
 lines.push('')
+// node-mode specs for the extractor / future NodeView (specs/node-model.md)
+const nodePages = []
+for (const [p, m] of pageFiles) {
+  if (m.node) nodePages.push({ path: p, id: m.id ?? null, file: m.node.file, mode: !!m.node.mode, prompt: m.node.prompt, dims: m.node.dims })
+}
+lines.push('export const NODE_SPEC = ' + JSON.stringify(nodePages, null, 1))
+lines.push('')
 fs.writeFileSync(OUT, lines.join('\n'))
+fs.writeFileSync(NODES_JSON, JSON.stringify({ schemaVersion: 1, pages: nodePages }, null, 1))
 
 if (!CHECK) {
   const dump = []

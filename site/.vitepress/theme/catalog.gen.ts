@@ -133,69 +133,118 @@ export const PAGE_META = {
   "created": "2026-09-09",
   "lang": "zh",
   "track": false,
-  "title": "学习地图"
+  "title": "学习地图",
+  "node": null
  },
  "/english/": {
   "id": null,
   "created": "2026-09-09",
   "lang": "zh",
   "track": false,
-  "title": "英语赛道"
+  "title": "英语赛道",
+  "node": null
  },
  "/english/vocab-core/unit-01-core-verbs": {
   "id": "e-vocab-001",
   "created": "2026-09-09",
   "lang": "zh",
   "track": true,
-  "title": "Unit 01 高频动词 12"
+  "title": "Unit 01 高频动词 12",
+  "node": {
+   "mode": true,
+   "prompt": null,
+   "dims": [
+    "词性",
+    "主题"
+   ]
+  }
  },
  "/english/vocab-core/unit-02-core-nouns": {
   "id": "e-vocab-002",
   "created": "2026-09-09",
   "lang": "zh",
   "track": true,
-  "title": "Unit 02 高频名词 12"
+  "title": "Unit 02 高频名词 12",
+  "node": null
  },
  "/english/vocab-core/unit-03-study-words": {
   "id": "e-vocab-003",
   "created": "2026-09-09",
   "lang": "zh",
   "track": true,
-  "title": "Unit 03 学习话题词"
+  "title": "Unit 03 学习话题词",
+  "node": null
  },
  "/english/grammar-basics/unit-01-tenses": {
   "id": "e-gram-001",
   "created": "2026-09-09",
   "lang": "zh",
   "track": true,
-  "title": "Unit 01 时态总览"
+  "title": "Unit 01 时态总览",
+  "node": null
  },
  "/english/grammar-basics/unit-02-sentence-parts": {
   "id": "e-gram-002",
   "created": "2026-09-09",
   "lang": "zh",
   "track": true,
-  "title": "Unit 02 句子成分"
+  "title": "Unit 02 句子成分",
+  "node": null
  },
  "/math/": {
   "id": null,
   "created": "2026-09-09",
   "lang": "zh",
   "track": false,
-  "title": "数学赛道"
+  "title": "数学赛道",
+  "node": null
  },
  "/math/unit-01-mental-addition": {
   "id": "m-001",
   "created": "2026-09-09",
   "lang": "zh",
   "track": true,
-  "title": "Unit 01 心算加法"
+  "title": "Unit 01 心算加法",
+  "node": {
+   "mode": true,
+   "prompt": "unit-01-mental-addition.prompt.md",
+   "dims": [
+    "题型",
+    "技巧"
+   ]
+  }
  },
  "/math/unit-02-fractions-basics": {
   "id": "m-002",
   "created": "2026-09-09",
   "lang": "zh",
   "track": true,
-  "title": "Unit 02 分数速览"
+  "title": "Unit 02 分数速览",
+  "node": null
  }
 }
+
+export const NODE_SPEC = [
+ {
+  "path": "/english/vocab-core/unit-01-core-verbs",
+  "id": "e-vocab-001",
+  "file": "english/vocab-core/unit-01-core-verbs.md",
+  "mode": true,
+  "prompt": null,
+  "dims": [
+   "词性",
+   "主题"
+  ]
+ },
+ {
+  "path": "/math/unit-01-mental-addition",
+  "id": "m-001",
+  "file": "math/unit-01-mental-addition.md",
+  "mode": true,
+  "prompt": "unit-01-mental-addition.prompt.md",
+  "dims": [
+   "题型",
+   "技巧"
+  ]
+ }
+]

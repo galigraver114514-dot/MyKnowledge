@@ -36,8 +36,13 @@ draft: true            # 暂不生成/不进树(保留开发中草稿)
 navTitle: 短名          # 仅当该页是 index.md 时: 覆盖树里显示名
 tags: [a, b]           # 预留检索用(未启用)
 summary: 一句话简介     # 预留
+nodeMode: true         # 可选: 开启本单元的 node 模式第二视图
+nodePrompt: xxx.md     # 可选: node 化一致性提示(内联一行或相对 .md 文件)
+nodeDims: ["词性", "主题"]  # 可选: 允许维度白名单(顺序=切换顺序)
 x-*: anything          # 扩展命名空间, 系统永不读取
 ---
+
+> node 模式相关概念(node/cluster/dimension/三原则/AI 钩子)见 `specs/node-model.md`。
 ```
 
 ## 3. 显示名与顺序配置（`courses.config.json`，只在新分支/想改名时动）

@@ -5,6 +5,9 @@ course: math
 order: 1
 created: 2026-09-09
 lang: zh
+nodeMode: true
+nodePrompt: unit-01-mental-addition.prompt.md
+nodeDims: ["题型", "技巧"]
 ---
 
 # Unit 01 · 心算加法

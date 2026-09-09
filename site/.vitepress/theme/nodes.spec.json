@@ -1,0 +1,27 @@
+{
+ "schemaVersion": 1,
+ "pages": [
+  {
+   "path": "/english/vocab-core/unit-01-core-verbs",
+   "id": "e-vocab-001",
+   "file": "english/vocab-core/unit-01-core-verbs.md",
+   "mode": true,
+   "prompt": null,
+   "dims": [
+    "词性",
+    "主题"
+   ]
+  },
+  {
+   "path": "/math/unit-01-mental-addition",
+   "id": "m-001",
+   "file": "math/unit-01-mental-addition.md",
+   "mode": true,
+   "prompt": "unit-01-mental-addition.prompt.md",
+   "dims": [
+    "题型",
+    "技巧"
+   ]
+  }
+ ]
+}

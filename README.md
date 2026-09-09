@@ -25,7 +25,8 @@ MyKnowledge/
 ├── scripts/gen-catalog.mjs      # doc->page pipeline: scans site/, emits catalog.gen.ts
 ├── specs/
 │   ├── data-model.md            # data model & tracking semantics spec v1 (Chinese docs)
-│   └── document-api.md          # authoring contract: write content, system does the rest
+│   ├── document-api.md          # authoring contract: write content, system does the rest
+│   └── node-model.md            # node/cluster/dimension model + node-mode API (v0.1)
 ├── tracker/                     # local data layer (zero dependency, decoupled from the site)
 │   ├── db.js                    # IndexedDB wrapper: write / state / export / import / snapshot
 │   ├── demo.html                # manual verification page (Chinese UI)
@@ -98,6 +99,9 @@ Semantics (event types, reduction rules, migration policy): `specs/data-model.md
 - Content: grow `english/` and `math/`, then add more courses - the tree,
   progress panel and page widgets are generated automatically from the
   Markdown files (`scripts/gen-catalog.mjs`, contract in `specs/document-api.md`)
+- Node mode (opt-in second view): node/cluster/dimension model in
+  `specs/node-model.md`; `npm run nodes` runs the mechanical extractor
+  (tables/definitions), AI hooks + NodeView visualization are the next step
 - Spaced repetition: add new event types later (backward compatible, schema v1)
 
 ## Conventions

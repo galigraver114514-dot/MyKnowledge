@@ -5,6 +5,8 @@ course: vocab-core
 order: 1
 created: 2026-09-09
 lang: zh
+nodeMode: true
+nodeDims: ["词性", "主题"]
 ---
 
 # Unit 01 · 高频动词 12

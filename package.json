@@ -12,6 +12,7 @@
     "build": "node scripts/gen-catalog.mjs && vitepress build site",
     "preview": "vitepress preview site",
     "gen": "node scripts/gen-catalog.mjs",
+    "nodes": "node scripts/extract-nodes.mjs",
     "check:docs": "node scripts/gen-catalog.mjs --check",
     "test:tracker": "node tracker/test/node.test.mjs"
   },
