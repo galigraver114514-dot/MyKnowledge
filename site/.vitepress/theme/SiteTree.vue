@@ -58,6 +58,18 @@ function loadExpanded() {
     if (raw) expanded.value = new Set(JSON.parse(raw) as string[])
   } catch { /* ignore */ }
 }
+function collectGroupKeys(nodes: NavNode[], acc: string[] = []): string[] {
+  for (const n of nodes) if (n.kind === 'group') { acc.push(n.key); collectGroupKeys(n.children, acc) }
+  return acc
+}
+// 首次访问(无任何存储): 默认展开全部组, 让人一眼看到完整树
+function seedExpandedOnce() {
+  let had = false
+  try { had = localStorage.getItem(MK_TREE_EXPANDED_KEY) !== null } catch { /* ignore */ }
+  if (had) return
+  for (const k of collectGroupKeys(NAV)) expanded.value.add(k)
+  saveExpanded()
+}
 function ancestorsOfPath(path: string): string[] {
   const walk = (nodes: NavNode[], acc: string[]): string[] | null => {
     for (const n of nodes) {
@@ -133,8 +145,8 @@ function mark(i: number, r: Row): string {
 }
 defineExpose({ moveUp, moveDown, activateCurrent, collapseLeft })
 
-watch(() => route.path, () => { loadExpanded(); syncCursorToRoute() })
-onMounted(() => { loadExpanded(); syncCursorToRoute() })
+watch(() => route.path, () => { seedExpandedOnce(); loadExpanded(); syncCursorToRoute() })
+onMounted(() => { seedExpandedOnce(); loadExpanded(); syncCursorToRoute() })
 </script>
 
 <template>
@@ -146,7 +158,7 @@ onMounted(() => { loadExpanded(); syncCursorToRoute() })
         :class="{ 'mk-cur': i === cursor }"
         :aria-expanded="r.expanded"
         @click="clickRow(i)"
-      ><span>{{ mark(i, r) }}</span><span class="mk-guide">{{ r.ind }}{{ r.conn }}</span>{{ r.title }}<span class="mk-exp">{{ r.expanded ? ' [-] ' : ' [+] ' }}</span></button>
+      ><span>{{ mark(i, r) }}</span><span class="mk-guide">{{ r.ind }}{{ r.conn }}</span>{{ r.title }}<span class="mk-exp">{{ r.expanded ? ' [-]' : ' [+]' }}</span></button>
       <a
         v-else
         class="mk-line"
