@@ -1,0 +1,13 @@
+# deps & build
+node_modules/
+.npm/
+site/.vitepress/dist/
+site/.vitepress/cache/
+
+# local noise
+*.local
+.DS_Store
+Thumbs.db
+
+# 行为数据导出默认放本地, 不入库(可复原性靠 tracker 导出, 非 git)
+exports/

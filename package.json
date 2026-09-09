@@ -1,0 +1,20 @@
+{
+  "name": "myknowledge-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "私人学习网站(MyKnowledge)：静态站点 + 本地实时持久化 + 可追踪/可复原",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vitepress dev site",
+    "build": "vitepress build site",
+    "preview": "vitepress preview site",
+    "test:tracker": "node tracker/test/node.test.mjs"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^6.2.5",
+    "vitepress": "^1.6.4"
+  }
+}
