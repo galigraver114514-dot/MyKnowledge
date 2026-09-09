@@ -1,4 +1,4 @@
-// MyKnowledge 极简主题: 完全自绘 Layout, 不使用 VitePress 默认主题 chrome
+// MyKnowledge minimal theme: fully custom Layout, no VitePress default chrome.
 import type { Theme } from 'vitepress'
 import Layout from './Layout.vue'
 import UnitTracker from './components/UnitTracker.vue'

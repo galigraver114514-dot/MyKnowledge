@@ -1,5 +1,8 @@
 <script setup lang="ts">
-// SiteTree —— ASCII 目录树。导航一律用 withBase() 真实 href + VitePress 拦截(无手工 router.go)。
+// SiteTree - ASCII directory tree.
+// Pure-text connectors (|-- / `-- / |), vim-style '>' cursor line,
+// [+] collapsed / [-] expanded groups. All navigation uses withBase() real
+// hrefs handled by VitePress's own router (no manual router.go calls).
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, withBase } from 'vitepress'
 import { NAV, MK_TREE_EXPANDED_KEY, type NavNode } from './nav'
@@ -58,6 +61,7 @@ function collectGroupKeys(nodes: NavNode[], acc: string[] = []): string[] {
   for (const n of nodes) if (n.kind === 'group') { acc.push(n.key); collectGroupKeys(n.children, acc) }
   return acc
 }
+// First visit (nothing stored yet): expand everything so the full tree is visible.
 function seedExpandedOnce() {
   let had = false
   try { had = localStorage.getItem(MK_TREE_EXPANDED_KEY) !== null } catch { /* ignore */ }
@@ -104,7 +108,8 @@ function toggle(key: string, force?: boolean) {
 
 function moveUp() { moveCursor(-1) }
 function moveDown() { moveCursor(1) }
-// 键盘激活 = 触发该行真实点击(组切换 / 链接走 vitepress 拦截)
+// Keyboard activation = real click on that row (group toggles / link goes
+// through VitePress routing), same path as mouse.
 function activateCurrent() {
   if (cursor.value == null) return
   const el = listEl.value?.querySelectorAll('.mk-line')[cursor.value] as HTMLElement | undefined
@@ -122,7 +127,7 @@ function collapseLeft() {
 }
 function onRowClick(i: number, isGroup: boolean) {
   cursor.value = i
-  if (isGroup) toggle(rows.value[i].key)   // 组: 只切换; 链接: 交给原生 <a> + vitepress
+  if (isGroup) toggle(rows.value[i].key)   // groups: toggle only; links: native <a> + VitePress
 }
 function mark(i: number, r: Row): string {
   if (i === cursor.value) return '>'

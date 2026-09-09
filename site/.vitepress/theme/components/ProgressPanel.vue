@@ -1,5 +1,7 @@
 <script setup lang="ts">
-// ProgressPanel —— ASCII 版: 进度行 + [x] 列表, 无卡片。
+// ProgressPanel - progress panel for the learning map.
+// Registry matches the sidebar/tree content (kept in sync manually for now).
+// Read-only derived state; never writes events. Logic runs in onMounted.
 import { ref, computed, onMounted } from 'vue'
 import { withBase } from 'vitepress'
 import { openDB, getState } from '../../../../tracker/db.js'
@@ -73,7 +75,7 @@ onMounted(async () => {
 .pp-head, .pp-unit { margin: 0.18rem 0; white-space: pre; }
 .pp-m, .pp-total, .pp-head { color: var(--accent); }
 .pp-mut { color: var(--muted); }
-.pp-err { color: #e5534b; }
+.pp-err { color: var(--err); }
 .pp-unit { margin-left: 2ch; }
 .pp-unit a { color: var(--fg); }
 .pp-unit a:hover { color: var(--accent); }

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-// UnitTracker —— ASCII 版: 纯文本状态行 + 括号按钮, 无卡片/彩色胶囊。
+// UnitTracker - per-unit completion widget.
+// Data layer: tracker/db.js (IndexedDB, event log as the single source of
+// truth). Writes persist immediately, locally only. SSR-safe: logic runs in
+// onMounted, the server only renders the placeholder.
 import { ref, computed, onMounted } from 'vue'
 import { openDB, recordEvent, getUnitState } from '../../../../tracker/db.js'
 
@@ -65,11 +68,11 @@ onMounted(async () => {
 .ut-line { margin: 0.2rem 0; }
 .ut-mark { color: var(--accent); }
 .ut-mut { color: var(--muted); }
-.ut-err { color: #e5534b; }
+.ut-err { color: var(--err); }
 .ut-btn {
-  background: none; border: 1px solid var(--border); color: var(--accent);
+  background: none; border: 1px solid var(--dimline); color: var(--accent);
   cursor: pointer; font: inherit; font-size: 0.92rem; padding: 0.15rem 0.5rem;
 }
-.ut-btn:hover:not(:disabled) { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.ut-btn:hover:not(:disabled) { color: #fff; background: var(--accent); border-color: var(--accent); }
 .ut-btn:disabled { opacity: 0.5; cursor: default; }
 </style>

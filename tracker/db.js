@@ -1,12 +1,13 @@
-// tracker/db.js —— MyKnowledge 本地数据层 (零依赖 ES module, 浏览器 IndexedDB)
-// 语义权威: specs/data-model.md (v1)
-// 原则: 事件日志为唯一事实; 派生状态可重算; 导入幂等; 写入即持久化。
+// tracker/db.js - MyKnowledge local data layer (zero-dependency ES module, browser IndexedDB)
+// Semantic authority: specs/data-model.md (v1, Chinese docs)
+// Principles: event log is the single source of truth; derived state is
+// recomputable; imports are idempotent; writes persist immediately.
 
 export const DB_NAME = 'myknowledge'
-export const SCHEMA_VERSION = 1        // 与 IndexedDB version 同步; 破坏性变更才 bump
-export const SNAPSHOT_KEEP = 5         // 本地环形保留快照份数
+export const SCHEMA_VERSION = 1        // keep in sync with the IndexedDB version; bump only on breaking changes
+export const SNAPSHOT_KEEP = 5         // number of snapshots kept locally (ring buffer)
 
-// ---------- 底层 promise 封装 ----------
+// ---------- low-level promise wrappers ----------
 function reqP(req) {
   return new Promise((resolve, reject) => {
     req.onsuccess = () => resolve(req.result)
@@ -42,7 +43,7 @@ export function openDB(name = DB_NAME, version = SCHEMA_VERSION) {
     }
     req.onsuccess = () => {
       const db = req.result
-      // 惰性初始化 meta
+      // lazily initialise meta
       const tx = db.transaction('meta', 'readwrite')
       tx.objectStore('meta').get('schema').onsuccess = (e) => {
         if (!e.target.result) {
@@ -82,20 +83,20 @@ export async function clearStore(db, store) {
   await txP(tx)
 }
 
-// ---------- 工具 ----------
+// ---------- helpers ----------
 export function newId() {
   return (globalThis.crypto?.randomUUID?.() ?? 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10))
 }
 export function nowIso() { return new Date().toISOString() }
 
-// ---------- 事件写入 (实时持久化: 单事务提交即落盘) ----------
+// ---------- event write (real-time persistence: a single tx commit = durable) ----------
 export async function recordEvent(db, { type, unitId = null, payload = {}, source = 'manual', id = newId(), ts = nowIso() }) {
   const ev = { id, ts, type, unitId, payload, source }
   await put(db, 'events', ev)
   return ev
 }
 
-// ---------- 派生状态 (纯函数, 与存储解耦以便测试) ----------
+// ---------- derived state (pure function, decoupled from storage for testing) ----------
 export function deriveState(events) {
   const map = new Map()
   const byUnit = {}
@@ -133,7 +134,7 @@ export async function getUnitState(db, unitId) {
   return st.get(unitId) ?? { unitId, status: 'not_started', firstOpenTs: null, lastTs: null, openCount: 0, completedAt: null, reopenedAt: null }
 }
 
-// ---------- 导出 / 导入 (幂等) ----------
+// ---------- export / import (idempotent) ----------
 export async function exportData(db) {
   const events = await allOf(db, 'events')
   return {
@@ -146,11 +147,11 @@ export async function exportData(db) {
 }
 
 export function validateExport(data) {
-  if (!data || typeof data !== 'object') throw new TypeError('导入失败: 不是有效的数据对象')
-  if (data.schemaVersion !== SCHEMA_VERSION) throw new TypeError('导入失败: schemaVersion 不匹配 (文件=' + data?.schemaVersion + ', 期望=' + SCHEMA_VERSION + ')')
-  if (!Array.isArray(data.events)) throw new TypeError('导入失败: events 必须是数组')
+  if (!data || typeof data !== 'object') throw new TypeError('import failed: not a valid data object')
+  if (data.schemaVersion !== SCHEMA_VERSION) throw new TypeError('import failed: schemaVersion mismatch (file=' + data?.schemaVersion + ', expected=' + SCHEMA_VERSION + ')')
+  if (!Array.isArray(data.events)) throw new TypeError('import failed: events must be an array')
   for (const ev of data.events) {
-    if (!ev || typeof ev.id !== 'string' || typeof ev.type !== 'string') throw new TypeError('导入失败: 存在非法事件记录')
+    if (!ev || typeof ev.id !== 'string' || typeof ev.type !== 'string') throw new TypeError('import failed: contains an invalid event record')
   }
   return true
 }
@@ -170,14 +171,14 @@ export async function importData(db, data) {
   return { imported, skipped }
 }
 
-// ---------- 快照 (本地环形保留) ----------
+// ---------- snapshots (local ring buffer) ----------
 export async function takeSnapshot(db) {
   const data = await exportData(db)
   const snap = { id: newId(), createdAt: nowIso(), count: data.eventCount, events: data.events }
   const tx = db.transaction('snapshots', 'readwrite')
   tx.objectStore('snapshots').put(snap)
   await txP(tx)
-  // 环形淘汰: 保留最新 SNAPSHOT_KEEP 份
+  // ring eviction: keep the newest SNAPSHOT_KEEP snapshots
   const snaps = await allOf(db, 'snapshots')
   snaps.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
   const drop = snaps.slice(SNAPSHOT_KEEP)
@@ -193,18 +194,20 @@ export async function listSnapshots(db) {
 export async function restoreSnapshot(db, snapId) {
   const snaps = await allOf(db, 'snapshots')
   const snap = snaps.find((s) => s.id === snapId)
-  if (!snap) throw new Error('快照不存在: ' + snapId)
+  if (!snap) throw new Error('snapshot not found: ' + snapId)
   return importData(db, { schemaVersion: SCHEMA_VERSION, appId: DB_NAME, exportedAt: snap.createdAt, eventCount: snap.count, events: snap.events })
 }
 
-// ---------- 清空事件 (复原演练用) ----------
-// 语义: 只清事件日志, 保留快照 —— 快照必须能挺过误清空, 才能"一键恢复"。
+// ---------- clear events (restore drill / reset) ----------
+// Semantics: only the event log is cleared, snapshots are kept - a snapshot
+// must survive an accidental clear so it can be restored "with one key".
 export async function clearEvents(db) {
   await clearStore(db, 'events')
 }
 
-// ---------- 彻底清除 (隐私用途) ----------
-// 连快照与 meta 一起删; 浏览器内等同"未使用过本工具"。复原性请依赖外部导出文件。
+// ---------- full wipe (privacy) ----------
+// Removes snapshots and meta too; inside the browser this equals "never used".
+// For restorability rely on external export files instead.
 export function wipeDatabase(name = DB_NAME) {
   return new Promise((resolve, reject) => {
     const req = indexedDB.deleteDatabase(name)

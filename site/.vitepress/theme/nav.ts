@@ -1,4 +1,4 @@
-// 全站导航树 (ASCII 风格标题, v0 手工维护)
+// Site-wide navigation tree (manually maintained for now; can be generated later).
 export interface NavPage { kind: 'page'; title: string; path: string }
 export interface NavGroup { kind: 'group'; key: string; title: string; children: NavNode[] }
 export type NavNode = NavPage | NavGroup

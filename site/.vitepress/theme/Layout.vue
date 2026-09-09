@@ -1,11 +1,13 @@
 <script setup lang="ts">
-// ASCII 极简 Layout: 左目录树 + 正文, hjkl 键控, 零图形/动画。
+// ASCII minimal Layout: left directory tree + content, hjkl key handling.
+// No chrome from the default theme, no animations. SSR-safe: all listeners
+// (keyboard/history/localStorage) are attached after mount.
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { Content, withBase } from 'vitepress'
 import SiteTree from './SiteTree.vue'
 
 const treeRef = ref<InstanceType<typeof SiteTree> | null>(null)
-const open = ref(true)
+const open = ref(true)          // initial state identical for SSR/client (not persisted)
 const showHelp = ref(false)
 const helpRows = [
   ['j / k', '光标下/上移 (树内)'],
@@ -27,7 +29,7 @@ function onKey(e: KeyboardEvent) {
   if (isTypingTarget(e)) return
   const k = e.key
   if (k === '?') { showHelp.value = !showHelp.value; e.preventDefault(); return }
-  if (showHelp.value) { showHelp.value = false; return }
+  if (showHelp.value) { showHelp.value = false; return }   // any key dismisses help
   if (open.value) {
     switch (k) {
       case 'j': treeRef.value?.moveDown(); e.preventDefault(); break

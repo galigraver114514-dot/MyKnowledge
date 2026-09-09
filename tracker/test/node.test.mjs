@@ -1,5 +1,6 @@
-// tracker/node.test.mjs —— N4 数据层自动化验证 (Node + fake-indexeddb)
-// 验证标准 (specs/data-model.md §5): 复原 = 清空→导入→状态一致; 幂等 = 再导入 skipped=全部
+// tracker/node.test.mjs - automated verification of the data layer (Node + fake-indexeddb)
+// Acceptance standard (specs/data-model.md, zh): restore = clear -> import ->
+// identical state; idempotency = importing again skips everything.
 import 'fake-indexeddb/auto'
 import assert from 'node:assert'
 import { openDB, closeDB, recordEvent, getState, getUnitState,
@@ -8,27 +9,27 @@ import { openDB, closeDB, recordEvent, getState, getUnitState,
 const db = await openDB()
 const U1 = 'e-vocab-001', U2 = 'e-gram-001'
 let pass = 0
-const ok = (name) => { pass += 1; console.log('  ✓', name) }
+const ok = (name) => { pass += 1; console.log('  PASS', name) }
 
-console.log('T1 事件写入与实时持久化')
+console.log('T1 event writes persist immediately')
 await recordEvent(db, { type: 'unit_open', unitId: U1 })
-await recordEvent(db, { type: 'unit_complete', unitId: U1, payload: { note: '第一遍完成' } })
+await recordEvent(db, { type: 'unit_complete', unitId: U1, payload: { note: 'first pass done' } })
 await recordEvent(db, { type: 'unit_open', unitId: U2 })
 let st1 = await getState(db)
 assert.strictEqual(st1.get(U1).status, 'completed')
 assert.strictEqual(st1.get(U2).status, 'in_progress')
 assert.strictEqual(st1.get(U1).completedAt !== null, true)
-ok('完成标记 → completed; 打开未完成 → in_progress')
+ok('complete -> completed; open only -> in_progress')
 
-console.log('T2 撤销 (unit_uncomplete) 可逆')
-await recordEvent(db, { type: 'unit_uncomplete', unitId: U1, payload: { note: '漏学了 revise 词' } })
+console.log('T2 uncomplete is reversible')
+await recordEvent(db, { type: 'unit_uncomplete', unitId: U1, payload: { note: 'missed a word' } })
 let st2 = await getState(db)
 assert.strictEqual(st2.get(U1).status, 'in_progress')
 assert.strictEqual(st2.get(U1).completedAt, null)
 assert.strictEqual(st2.get(U1).reopenedAt !== null, true)
-ok('撤销后回到 in_progress 且 completedAt 清空')
+ok('back to in_progress, completedAt cleared')
 
-console.log('T3 导出 → 清空 → 导入 = 复原 (状态逐字段一致)')
+console.log('T3 export -> clear -> import restores identical state')
 const before = await exportData(db)
 await clearEvents(db)
 assert.strictEqual((await getState(db)).size, 0)
@@ -38,31 +39,31 @@ assert.strictEqual(imp1.skipped, 0)
 const after = await exportData(db)
 assert.strictEqual(after.eventCount, before.eventCount)
 assert.deepStrictEqual(after.events.sort((a, b) => a.id.localeCompare(b.id)), before.events.sort((a, b) => a.id.localeCompare(b.id)))
-ok('复原一致, 事件全量匹配')
+ok('restored, event logs match fully')
 
-console.log('T4 再导入 = 幂等 (skipped=全部, 状态不变)')
+console.log('T4 importing again is idempotent (all skipped, state unchanged)')
 const imp2 = await importData(db, before)
 assert.strictEqual(imp2.skipped, before.eventCount)
 assert.strictEqual(imp2.imported, 0)
-ok('重复导入不重复写入')
+ok('re-import writes nothing')
 
-console.log('T5 快照: 记录 → 清空 → 恢复快照')
+console.log('T5 snapshot: take -> clear -> restore snapshot')
 const s1 = await takeSnapshot(db)
-await recordEvent(db, { type: 'unit_open', unitId: U2 }) // 快照后再加一条
-await clearEvents(db)   // 快照必须能挺过误清空
+await recordEvent(db, { type: 'unit_open', unitId: U2 }) // one more event after the snapshot
+await clearEvents(db)   // snapshots must survive an accidental clear
 let snaps = await listSnapshots(db)
 assert.ok(snaps.length >= 1)
 const r = await restoreSnapshot(db, s1)
 assert.strictEqual(r.imported, before.eventCount)
 const afterRestore = await getState(db)
-assert.strictEqual(afterRestore.get(U1).status, 'in_progress') // 快照时 U1 是 in_progress (被 T2 撤销)
-ok('清空后从快照恢复成功')
+assert.strictEqual(afterRestore.get(U1).status, 'in_progress') // U1 was in_progress at snapshot time (after T2)
+ok('restored from snapshot after clear')
 
-console.log('T6 非法导入被拒绝 (不写任何数据)')
+console.log('T6 invalid import is rejected without writing anything')
 let rejected = false
 try { await importData(db, { schemaVersion: 999, events: [] }) } catch { rejected = true }
 assert.strictEqual(rejected, true)
-ok('schemaVersion 不匹配被拒绝')
+ok('schemaVersion mismatch rejected')
 
 closeDB(db)
-console.log('\nALL PASS: ' + pass + ' checks → tracker 数据层验证通过 (spec §5 复原标准达成)')
+console.log('\nALL PASS: ' + pass + ' checks -> data layer verified (spec restore standard met)')
