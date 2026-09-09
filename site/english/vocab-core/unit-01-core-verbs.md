@@ -4,6 +4,7 @@ id: e-vocab-001
 course: vocab-core
 order: 1
 created: 2026-09-09
+lang: zh
 ---
 
 # Unit 01 · 高频动词 12

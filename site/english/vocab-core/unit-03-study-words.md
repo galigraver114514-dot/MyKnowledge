@@ -4,6 +4,7 @@ id: e-vocab-003
 course: vocab-core
 order: 3
 created: 2026-09-09
+lang: zh
 ---
 
 # Unit 03 · 学习话题词

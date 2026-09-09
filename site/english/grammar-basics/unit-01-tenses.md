@@ -4,6 +4,7 @@ id: e-gram-001
 course: grammar-basics
 order: 1
 created: 2026-09-09
+lang: zh
 ---
 
 # Unit 01 · 时态总览

@@ -20,7 +20,8 @@ MyKnowledge/
 │   ├── .vitepress/config.mts    # site meta / base path
 │   ├── .vitepress/theme/        # fully custom minimal theme (Layout + ASCII tree)
 │   ├── index.md                 # learning map (with local progress panel)
-│   └── english/                 # English course: vocab x3 + grammar x2 units
+│   ├── english/                 # English course: vocab x3 + grammar x2 units
+│   └── math/                    # Math course: 2 units (and growing)
 ├── specs/data-model.md          # data model & tracking semantics spec v1 (Chinese docs)
 ├── tracker/                     # local data layer (zero dependency, decoupled from the site)
 │   ├── db.js                    # IndexedDB wrapper: write / state / export / import / snapshot
@@ -56,6 +57,7 @@ npm run demo         # 3) tracker demo page    (http://localhost:4173)
 | `l` / `Enter` | expand group / open unit | browser forward |
 | `t` | hide | show |
 | `Esc` | hide | - |
+| `m` | toggle page suffix: created / chars / lang (works either way) | |
 
 ## Data architecture (one-liner)
 
@@ -90,7 +92,7 @@ Semantics (event types, reduction rules, migration policy): `specs/data-model.md
 ## Roadmap
 
 - **N6** post-deploy restore drill (browser clear -> import -> verify)
-- Content: grow `english/`, then add other courses; registry in
+- Content: grow `english/` and `math/`, then add more courses; registry in
   `site/.vitepress/theme/nav.ts` + `ProgressPanel` kept in sync
 - Spaced repetition: add new event types later (backward compatible, schema v1)
 

@@ -4,6 +4,7 @@ id: e-vocab-002
 course: vocab-core
 order: 2
 created: 2026-09-09
+lang: zh
 ---
 
 # Unit 02 · 高频名词 12

@@ -4,6 +4,7 @@ id: e-gram-002
 course: grammar-basics
 order: 2
 created: 2026-09-09
+lang: zh
 ---
 
 # Unit 02 · 句子成分

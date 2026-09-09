@@ -22,6 +22,13 @@ export const NAV: NavNode[] = [
         ]
       }
     ]
+  },
+  {
+    kind: 'group', key: 'math', title: '数学', children: [
+      { kind: 'page', title: '赛道首页', path: '/math/' },
+      { kind: 'page', title: 'Unit 01 心算加法', path: '/math/unit-01-mental-addition' },
+      { kind: 'page', title: 'Unit 02 分数速览', path: '/math/unit-02-fractions-basics' }
+    ]
   }
 ]
 

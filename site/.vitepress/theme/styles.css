@@ -128,6 +128,12 @@ a:hover { color: var(--accent-strong); }
 .mk-content strong { font-weight: 700; color: #000; }
 .mk-content em { color: #000; }
 
+/* ---------------- hidden page meta suffix (key 'm') ---------------- */
+.mk-meta {
+  margin-top: 1.4rem; padding-top: 0.55rem; border-top: 1px dashed var(--dimline);
+  color: var(--muted); font-size: 0.8rem; white-space: pre;
+}
+
 /* ---------------- bottom status bar ---------------- */
 .mk-status {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;

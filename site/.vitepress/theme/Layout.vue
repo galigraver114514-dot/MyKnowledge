@@ -3,8 +3,11 @@
 // bottom status bar (current location / reading %) and per-page scroll memory.
 // SSR-safe: all listeners and window logic are attached after mount.
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import { Content, withBase, useRoute, onContentUpdated } from 'vitepress'
+import { Content, withBase, useRoute, useData, onContentUpdated } from 'vitepress'
 import SiteTree from './SiteTree.vue'
+
+const MK_META_KEY = 'mk.page.meta'
+const { frontmatter } = useData()
 import { NAV, type NavNode } from './nav'
 
 const SCROLL_KEY = 'mk.scroll.positions'
@@ -22,8 +25,43 @@ const showHelp = ref(false)
 const crumbs = ref('')
 const rawPath = ref('')
 const pct = ref(0)
+const metaVisible = ref(false)
+const metaLine = ref('')
 let lastPath = cur()
 let ticking = false
+let metaTimer: ReturnType<typeof setTimeout> | null = null
+
+// ---------- hidden page meta suffix (key 'm') ----------
+function loadMetaPref() {
+  try { metaVisible.value = localStorage.getItem(MK_META_KEY) === '1' } catch { /* ignore */ }
+}
+function saveMetaPref() {
+  try { localStorage.setItem(MK_META_KEY, metaVisible.value ? '1' : '0') } catch { /* ignore */ }
+}
+// heuristic 字数: CJK chars count as one each, latin/digit runs count as words
+function countChars(text: string): number {
+  const cjk = (text.match(/[\u3400-\u4dbf\u4e00-\u9fff\u3040-\u30ff]/g) || []).length
+  const words = (text.match(/[A-Za-z0-9]+/g) || []).length
+  return cjk + words
+}
+function computeMeta() {
+  const wrap = document.querySelector('.mk-content')
+  if (!wrap) return
+  const clone = wrap.cloneNode(true) as HTMLElement
+  clone.querySelectorAll('.mk-meta').forEach((el) => el.remove())
+  const cnt = countChars(clone.textContent || '')
+  const fm = (frontmatter.value || {}) as Record<string, unknown>
+  const created = (fm.created as string) || '-'
+  const lang = (fm.lang as string) || '-'
+  metaLine.value = 'created: ' + created + ' | chars: ' + cnt + ' | lang: ' + lang
+}
+function toggleMeta() {
+  metaVisible.value = !metaVisible.value
+  saveMetaPref()
+  if (metaVisible.value) {
+    metaTimer = setTimeout(computeMeta, 60)   // wait for current content
+  } else if (metaTimer) { clearTimeout(metaTimer) }
+}
 
 // ---------- bottom status bar data ----------
 function findCrumbs(path: string, nodes: NavNode[] = NAV, acc: string[] = []): string[] | null {
@@ -100,7 +138,8 @@ const helpRows = [
   ['Esc', '收起目录树'],
   ['(树隐藏) j / k', '正文行滚动'],
   ['(树隐藏) h / l', '后退 / 前进'],
-  ['?', '本帮助']
+  ['?', '本帮助'],
+  ['m', '显示/隐藏页面后缀 (创建日期/字数/语言)']
 ] as const
 
 function isTypingTarget(e: KeyboardEvent): boolean {
@@ -113,6 +152,7 @@ function onKey(e: KeyboardEvent) {
   const k = e.key
   if (k === '?') { showHelp.value = !showHelp.value; e.preventDefault(); return }
   if (showHelp.value) { showHelp.value = false; return }
+  if (k === 'm') { toggleMeta(); e.preventDefault(); return }
   if (open.value) {
     switch (k) {
       case 'j': treeRef.value?.moveDown(); e.preventDefault(); break
@@ -145,6 +185,7 @@ watch(() => route.path, () => {
 onContentUpdated(() => {
   updateLocation()
   restorePos()
+  if (metaVisible.value) metaTimer = setTimeout(computeMeta, 60)
 })
 
 onMounted(() => {
@@ -153,6 +194,8 @@ onMounted(() => {
   updateLocation()
   pct.value = calcPct()
   restorePos()
+  loadMetaPref()
+  if (metaVisible.value) metaTimer = setTimeout(computeMeta, 120)
   window.addEventListener('beforeunload', () => savePos(lastPath))
 })
 onBeforeUnmount(() => {
@@ -170,13 +213,15 @@ onBeforeUnmount(() => {
         <button class="mk-ghost" title="收起 (Esc/t)" aria-label="收起" @click="open = false">x</button>
       </div>
       <SiteTree ref="treeRef" class="mk-tree-scroll" />
-      <div class="mk-keys">j/k move   l open   h fold   Esc hide   ? help</div>
+      <div class="mk-keys">j/k move   l open   h fold   m meta   Esc hide   ? help</div>
     </aside>
 
     <button v-if="!open" class="mk-openbtn" title="打开 (t)" @click="open = true">nav [t]</button>
 
     <main class="mk-main" :class="{ 'mk-nopanel': !open }">
-      <div class="mk-content"><Content /></div>
+      <div class="mk-content"><Content />
+        <div v-if="metaVisible" class="mk-meta">{{ metaLine }}</div>
+      </div>
     </main>
 
     <!-- bottom status bar: current location / reading progress / extensible -->
