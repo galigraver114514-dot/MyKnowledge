@@ -2,13 +2,13 @@
 // ASCII minimal Layout: left directory tree + content, hjkl keys,
 // bottom status bar (current location / reading %) and per-page scroll memory.
 // SSR-safe: all listeners and window logic are attached after mount.
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Content, withBase, useRoute, useData, onContentUpdated } from 'vitepress'
 import SiteTree from './SiteTree.vue'
 
 const MK_META_KEY = 'mk.page.meta'
 const { frontmatter } = useData()
-import { NAV, type NavNode } from './nav'
+import { NAV, PAGE_META, type NavNode } from './nav'
 
 const SCROLL_KEY = 'mk.scroll.positions'
 
@@ -51,8 +51,9 @@ function computeMeta() {
   clone.querySelectorAll('.mk-meta').forEach((el) => el.remove())
   const cnt = countChars(clone.textContent || '')
   const fm = (frontmatter.value || {}) as Record<string, unknown>
-  const created = (fm.created as string) || '-'
-  const lang = (fm.lang as string) || '-'
+  const cm = PAGE_META[cur()] || {}
+  const created = (fm.created as string) || cm.created || '-'
+  const lang = (fm.lang as string) || cm.lang || '-'
   metaLine.value = 'created: ' + created + ' | chars: ' + cnt + ' | lang: ' + lang
 }
 function toggleMeta() {
@@ -62,6 +63,11 @@ function toggleMeta() {
     metaTimer = setTimeout(computeMeta, 60)   // wait for current content
   } else if (metaTimer) { clearTimeout(metaTimer) }
 }
+// current page unit id (from generated catalog) -> auto "完成记录" widget
+const curUnit = computed(() => {
+  const m = PAGE_META[cur()]
+  return m && m.track && m.id ? m.id : null
+})
 
 // ---------- bottom status bar data ----------
 function findCrumbs(path: string, nodes: NavNode[] = NAV, acc: string[] = []): string[] | null {
@@ -220,6 +226,10 @@ onBeforeUnmount(() => {
 
     <main class="mk-main" :class="{ 'mk-nopanel': !open }">
       <div class="mk-content"><Content />
+        <div v-if="curUnit" class="mk-tracker-auto">
+          <h2>完成记录</h2>
+          <UnitTracker :unit-id="curUnit" />
+        </div>
         <div v-if="metaVisible" class="mk-meta">{{ metaLine }}</div>
       </div>
     </main>

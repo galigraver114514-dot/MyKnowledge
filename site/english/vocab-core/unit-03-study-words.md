@@ -33,7 +33,3 @@ lang: zh
 - [ ] 能区分 learn / study 并各造一句
 - [ ] 用 make progress / take notes / set a goal 各造一句
 - [ ] 用英文口头描述你本周的学习安排（3 句即可）
-
-## 完成记录
-
-<UnitTracker unit-id="e-vocab-003" />

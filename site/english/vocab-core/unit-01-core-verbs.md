@@ -35,9 +35,3 @@ lang: zh
 - [ ] 能说出 12 个词的发音与核心义
 - [ ] 遮住例句能回译 ≥10 条
 - [ ] 用 get / make / take 各造一个新句
-
-## 完成记录
-
-<UnitTracker unit-id="e-vocab-001" />
-
-> 打开本页即记录 `unit_open`；"标记完成"写入 `unit_complete`，可随时撤销。所有记录只在本机浏览器。

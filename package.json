@@ -8,9 +8,11 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "vitepress dev site",
-    "build": "vitepress build site",
+    "dev": "node scripts/gen-catalog.mjs && vitepress dev site",
+    "build": "node scripts/gen-catalog.mjs && vitepress build site",
     "preview": "vitepress preview site",
+    "gen": "node scripts/gen-catalog.mjs",
+    "check:docs": "node scripts/gen-catalog.mjs --check",
     "test:tracker": "node tracker/test/node.test.mjs"
   },
   "devDependencies": {

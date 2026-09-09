@@ -35,7 +35,3 @@ lang: zh
 - [ ] 能说出每个词可数还是不可数
 - [ ] 用 much / many 各造两句区分 work 与 friend
 - [ ] 朗读全部例句一遍
-
-## 完成记录
-
-<UnitTracker unit-id="e-vocab-002" />

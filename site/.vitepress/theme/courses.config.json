@@ -1,0 +1,13 @@
+{
+  "defaultLang": "zh",
+  "courseIndexLabel": "赛道首页",
+  "labels": {
+    "english": "英语",
+    "math": "数学",
+    "vocab-core": "词汇-核心",
+    "grammar-basics": "基础语法"
+  },
+  "dirOrder": {
+    "english": ["vocab-core", "grammar-basics"]
+  }
+}

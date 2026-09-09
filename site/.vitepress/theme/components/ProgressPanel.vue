@@ -1,20 +1,13 @@
 <script setup lang="ts">
 // ProgressPanel - progress panel for the learning map.
-// Registry matches the sidebar/tree content (kept in sync manually for now).
+// Units come from the generated catalog (scripts/gen-catalog.mjs), the same
+// source the nav tree uses - no manual registry to keep in sync.
 // Read-only derived state; never writes events. Logic runs in onMounted.
 import { ref, computed, onMounted } from 'vue'
 import { withBase } from 'vitepress'
 import { openDB, getState } from '../../../../tracker/db.js'
+import { UNITS } from '../nav'
 
-const UNITS = [
-  { id: 'e-vocab-001', course: '词汇-核心', title: 'Unit 01 高频动词 12', path: '/english/vocab-core/unit-01-core-verbs' },
-  { id: 'e-vocab-002', course: '词汇-核心', title: 'Unit 02 高频名词 12', path: '/english/vocab-core/unit-02-core-nouns' },
-  { id: 'e-vocab-003', course: '词汇-核心', title: 'Unit 03 学习话题词', path: '/english/vocab-core/unit-03-study-words' },
-  { id: 'e-gram-001', course: '基础语法', title: 'Unit 01 时态总览', path: '/english/grammar-basics/unit-01-tenses' },
-  { id: 'e-gram-002', course: '基础语法', title: 'Unit 02 句子成分', path: '/english/grammar-basics/unit-02-sentence-parts' },
-  { id: 'm-001', course: '数学', title: 'Unit 01 心算加法', path: '/math/unit-01-mental-addition' },
-  { id: 'm-002', course: '数学', title: 'Unit 02 分数速览', path: '/math/unit-02-fractions-basics' }
-]
 type Status = 'not_started' | 'in_progress' | 'completed'
 const statusOf = ref<Record<string, Status>>({})
 const loaded = ref(false)

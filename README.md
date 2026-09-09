@@ -22,7 +22,10 @@ MyKnowledge/
 │   ├── index.md                 # learning map (with local progress panel)
 │   ├── english/                 # English course: vocab x3 + grammar x2 units
 │   └── math/                    # Math course: 2 units (and growing)
-├── specs/data-model.md          # data model & tracking semantics spec v1 (Chinese docs)
+├── scripts/gen-catalog.mjs      # doc->page pipeline: scans site/, emits catalog.gen.ts
+├── specs/
+│   ├── data-model.md            # data model & tracking semantics spec v1 (Chinese docs)
+│   └── document-api.md          # authoring contract: write content, system does the rest
 ├── tracker/                     # local data layer (zero dependency, decoupled from the site)
 │   ├── db.js                    # IndexedDB wrapper: write / state / export / import / snapshot
 │   ├── demo.html                # manual verification page (Chinese UI)
@@ -92,8 +95,9 @@ Semantics (event types, reduction rules, migration policy): `specs/data-model.md
 ## Roadmap
 
 - **N6** post-deploy restore drill (browser clear -> import -> verify)
-- Content: grow `english/` and `math/`, then add more courses; registry in
-  `site/.vitepress/theme/nav.ts` + `ProgressPanel` kept in sync
+- Content: grow `english/` and `math/`, then add more courses - the tree,
+  progress panel and page widgets are generated automatically from the
+  Markdown files (`scripts/gen-catalog.mjs`, contract in `specs/document-api.md`)
 - Spaced repetition: add new event types later (backward compatible, schema v1)
 
 ## Conventions
