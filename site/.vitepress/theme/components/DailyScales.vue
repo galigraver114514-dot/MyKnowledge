@@ -3,7 +3,7 @@
 // 10-square picker + dual line chart with hover crosshair.
 // Data: local IndexedDB (event 'daily_scale', per-date latest wins).
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { openDB, recordEvent, getDailyScales } from '../../../../tracker/db.js'
+import { openDB, recordEvent, getDailyScales, clearDailyScale } from '../../../../tracker/db.js'
 
 const RANGES = [7, 14, 30, 100]
 const METRICS = {
@@ -23,6 +23,7 @@ const selectedDate = ref('')
 const mot = ref(5)
 const conc = ref(5)
 const saving = ref(false)
+const saveErr = ref('')
 const chartWrap = ref<HTMLElement | null>(null)
 const width = ref(0)
 const hoverIdx = ref<number | null>(null)
@@ -88,16 +89,42 @@ function pick(d: string) {
 async function save() {
   if (saving.value) return
   saving.value = true
+  saveErr.value = ''
   try {
     const db = await ensureDb()
-    await recordEvent(db, {
+    const ev = await recordEvent(db, {
       type: 'daily_scale', unitId: null,
       payload: { date: selectedDate.value, mot: mot.value, conc: conc.value },
       source: 'manual'
     })
-    await refresh()
-    msg.value = 'saved ' + selectedDate.value + '  mot=' + mot.value + ' conc=' + conc.value
-  } catch (e) { error.value = 'write failed: ' + (e as Error).message }
+    // Single-writer path: the event we just committed is by definition the
+    // latest for this date - upsert locally, do NOT re-read (re-read raced
+    // with the write and occasionally reverted the UI).
+    scales.value = { ...scales.value, [ev.payload.date]: { mot: mot.value, conc: conc.value } }
+    console.info('[DailyScales] saved event ' + ev.id + ' for ' + ev.payload.date)
+    msg.value = 'saved ' + ev.payload.date + '  mot=' + mot.value + ' conc=' + conc.value
+  } catch (e) {
+    saveErr.value = (e as Error).message || String(e)
+    console.error('[DailyScales save]', e)
+  }
+  finally { saving.value = false }
+}
+async function clearDay() {
+  if (saving.value) return
+  if (!window.confirm('clear ' + selectedDate.value + ' mot/conc record?')) return
+  saving.value = true
+  saveErr.value = ''
+  try {
+    const db = await ensureDb()
+    const n = await clearDailyScale(db, selectedDate.value)
+    const next = { ...scales.value }
+    delete next[selectedDate.value]
+    scales.value = next
+    msg.value = n ? 'cleared ' + selectedDate.value + ' (' + n + ' event' + (n > 1 ? 's' : '') + ')' : 'no record for ' + selectedDate.value
+  } catch (e) {
+    saveErr.value = (e as Error).message || String(e)
+    console.error('[DailyScales clear]', e)
+  }
   finally { saving.value = false }
 }
 
@@ -208,7 +235,9 @@ onBeforeUnmount(() => {
           :style="[{ borderColor: METRICS[mode].solid }, (mode === 'mot' ? mot : conc) >= k ? { background: METRICS[mode].solid, color: '#fff' } : {}]"
           @click="setScore(k)">{{ k }}</button>
         <button class="ds-save" :disabled="saving" @click="save">[ 保存 ]</button>
+        <button class="ds-clear" :disabled="saving" @click="clearDay">[ 清空 ]</button>
         <span class="ds-msg">{{ msg }}</span>
+        <span v-if="saveErr" class="ds-err">! {{ saveErr }}</span>
       </div>
 
       <!-- line chart: hover to inspect, no date axis clutter -->
@@ -276,6 +305,11 @@ onBeforeUnmount(() => {
   color: #000; cursor: pointer; font: inherit; padding: 0.2rem 0.7rem;
 }
 .ds-save:hover:not(:disabled) { background: #000; color: #fff; }
+.ds-clear {
+  border: 1px solid var(--dimline); background: none; color: var(--err);
+  cursor: pointer; font: inherit; padding: 0.2rem 0.7rem;
+}
+.ds-clear:hover:not(:disabled) { background: var(--err); color: #fff; border-color: var(--err); }
 .ds-msg { color: var(--muted); font-size: 0.82rem; }
 .ds-chart { position: relative; overflow-x: auto; border: 1px solid var(--dimline); background: #fff; }
 .ds-chart svg { display: block; }

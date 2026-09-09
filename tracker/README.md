@@ -22,6 +22,7 @@ npm run demo           # 启动演示页 (npx serve tracker, 端口 4173)
 | `importData(db, data)` | 幂等导入 (按 id 去重, schema 校验) |
 | `takeSnapshot / listSnapshots / restoreSnapshot` | 本地快照 (最近 5 份) |
 | `getDailyScales(db)` | 每日 mot/conc 量表 (date → {mot,conc}, 同日后者胜) |
+| `clearDailyScale(db, date)` | 删除某日所有 daily_scale 事件 (清空该日) |
 | `clearEvents(db) / wipeDatabase()` | 清空事件(保快照) / 隐私擦除 |
 
 > 站点 UI (N5) 将以本模块为数据底座; 当前 tracker 与 site 解耦, 互不依赖。

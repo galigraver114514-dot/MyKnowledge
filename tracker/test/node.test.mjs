@@ -76,6 +76,15 @@ assert.strictEqual(scales['2026-09-10'].mot, 5)
 assert.strictEqual(Object.keys(scales).length, 2)
 ok('scales aggregated per date (latest wins)')
 
+console.log('T8 clearDailyScale removes one date only')
+import { clearDailyScale } from '../db.js'
+const n9 = await clearDailyScale(db, '2026-09-10')
+assert.strictEqual(n9, 1)
+const afterClear = await getDailyScales(db)
+assert.strictEqual(afterClear['2026-09-10'], undefined)
+assert.strictEqual(afterClear['2026-09-09'].mot, 8)   // other date untouched
+ok('cleared date gone, others kept')
+
 closeDB(db)
 console.log('\nALL PASS: ' + pass + ' checks -> data layer verified (spec restore standard met)')
 

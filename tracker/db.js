@@ -149,6 +149,19 @@ export async function getDailyScales(db) {
   return out // { 'YYYY-MM-DD': { mot, conc } }
 }
 
+// Remove all daily_scale events for one date (used by "clear day" in the UI).
+export async function clearDailyScale(db, date) {
+  const evs = await allOf(db, 'events')
+  const tx = db.transaction('events', 'readwrite')
+  const os = tx.objectStore('events')
+  let n = 0
+  for (const ev of evs) {
+    if (ev.type === 'daily_scale' && ev.payload && ev.payload.date === date) { os.delete(ev.id); n += 1 }
+  }
+  await txP(tx)
+  return n
+}
+
 // ---------- export / import (idempotent) ----------
 export async function exportData(db) {
   const events = await allOf(db, 'events')
