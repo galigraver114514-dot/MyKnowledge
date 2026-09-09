@@ -1,6 +1,6 @@
 # MyKnowledge
 
-A personal English-learning site on GitHub Pages with a hardcore ASCII / terminal
+A personal learning site on GitHub Pages with a hardcore ASCII / terminal
 aesthetic: static content is public, **all behavior data lives only in your local
 browser** (IndexedDB, persisted in real time), trackable (event log + derived
 state) and restorable (export / import / snapshots, idempotent).
