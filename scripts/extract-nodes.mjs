@@ -99,6 +99,7 @@ for (const page of spec.pages || []) {
     while (i < lines.length && lines[i].trim().startsWith('|')) i++
     i--
     for (const n of t.nodes) {
+      n.name = n.name.replace(/[*_`]/g, '').trim()   // strip markdown emphasis
       const key = n.name
       if (seen.has(key)) continue
       seen.add(key)

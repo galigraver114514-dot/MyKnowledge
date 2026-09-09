@@ -1,0 +1,215 @@
+{
+ "schemaVersion": 1,
+ "generatedAt": "2026-09-09T11:49:13.644Z",
+ "pages": [
+  {
+   "path": "/english/vocab-core/unit-01-core-verbs",
+   "id": "e-vocab-001",
+   "file": "english/vocab-core/unit-01-core-verbs.md",
+   "mode": true,
+   "prompt": null,
+   "dims": [
+    "词性",
+    "主题"
+   ],
+   "nodes": [
+    {
+     "id": "e-vocab-001.get",
+     "name": "get",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "得到；变得",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "获得·得到"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.make",
+     "name": "make",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "制作；使得",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "创造·制作"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.take",
+     "name": "take",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "拿；花费",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "携带·获取"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.know",
+     "name": "know",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "知道；认识",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "认知·思考"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.think",
+     "name": "think",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "想；认为",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "认知·思考"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.come",
+     "name": "come",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "来",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "移动·来去"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.go",
+     "name": "go",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "去",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "移动·来去"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.look",
+     "name": "look",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "看；看起来",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "感官·视觉"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.want",
+     "name": "want",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "想要",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "意愿·想要"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.use",
+     "name": "use",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "使用",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "工具·使用"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.find",
+     "name": "find",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "找到；发觉",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "发现·寻找"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-001.give",
+     "name": "give",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "给",
+     "labels": {
+      "词性": [
+       "v."
+      ],
+      "主题": [
+       "给予·传递"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "path": "/math/unit-01-mental-addition",
+   "id": "m-001",
+   "file": "math/unit-01-mental-addition.md",
+   "mode": true,
+   "prompt": "unit-01-mental-addition.prompt.md",
+   "dims": [
+    "题型",
+    "技巧"
+   ],
+   "nodes": []
+  }
+ ],
+ "stats": {
+  "pages": 2,
+  "nodes": 12
+ }
+}

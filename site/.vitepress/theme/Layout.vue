@@ -68,6 +68,11 @@ const curUnit = computed(() => {
   const m = PAGE_META[cur()]
   return m && m.track && m.id ? m.id : null
 })
+// node-mode second view enabled for this page?
+const nodeOn = computed(() => {
+  const m = PAGE_META[cur()]
+  return !!(m && m.node && m.node.mode)
+})
 
 // ---------- bottom status bar data ----------
 function findCrumbs(path: string, nodes: NavNode[] = NAV, acc: string[] = []): string[] | null {
@@ -229,6 +234,10 @@ onBeforeUnmount(() => {
         <div v-if="curUnit" class="mk-tracker-auto">
           <h2>完成记录</h2>
           <UnitTracker :unit-id="curUnit" />
+        </div>
+        <div v-if="nodeOn" class="mk-nodeview-auto">
+          <h2>节点视图</h2>
+          <NodeView :page-path="cur()" />
         </div>
         <div v-if="metaVisible" class="mk-meta">{{ metaLine }}</div>
       </div>

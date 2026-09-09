@@ -8,8 +8,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "node scripts/gen-catalog.mjs && vitepress dev site",
-    "build": "node scripts/gen-catalog.mjs && vitepress build site",
+    "dev": "node scripts/gen-catalog.mjs && node scripts/extract-nodes.mjs --write && vitepress dev site",
+    "build": "node scripts/gen-catalog.mjs && node scripts/extract-nodes.mjs --write && vitepress build site",
     "preview": "vitepress preview site",
     "gen": "node scripts/gen-catalog.mjs",
     "nodes": "node scripts/extract-nodes.mjs",
