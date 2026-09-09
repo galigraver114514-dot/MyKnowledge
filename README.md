@@ -101,7 +101,12 @@ Semantics (event types, reduction rules, migration policy): `specs/data-model.md
   Markdown files (`scripts/gen-catalog.mjs`, contract in `specs/document-api.md`)
 - Node mode (opt-in second view): node/cluster/dimension model in
   `specs/node-model.md`; `npm run nodes` runs the mechanical extractor
-  (tables/definitions), AI hooks + NodeView visualization are the next step
+  (tables/definitions)
+  * per-unit NodeView on nodeMode pages (runtime cluster aggregation over the
+    active dimension, multi-color)
+  * /graph "学习图谱": whole-graph view joining all units (same-name concepts
+    merged across chapters, click-through to unit pages, dimension switch)
+  * remaining: AI hooks (origin=ai-auto), smooth-edge checker, graph edges
 - Spaced repetition: add new event types later (backward compatible, schema v1)
 
 ## Conventions

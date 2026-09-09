@@ -8,6 +8,11 @@ export const NAV = [
   "path": "/"
  },
  {
+  "kind": "page",
+  "title": "学习图谱",
+  "path": "/graph"
+ },
+ {
   "kind": "group",
   "key": "g-english",
   "title": "英语",
@@ -136,6 +141,14 @@ export const PAGE_META = {
   "title": "学习地图",
   "node": null
  },
+ "/graph": {
+  "id": "graph",
+  "created": "2026-09-09",
+  "lang": "zh",
+  "track": false,
+  "title": "学习图谱",
+  "node": null
+ },
  "/english/": {
   "id": null,
   "created": "2026-09-09",
@@ -165,7 +178,14 @@ export const PAGE_META = {
   "lang": "zh",
   "track": true,
   "title": "Unit 02 高频名词 12",
-  "node": null
+  "node": {
+   "mode": true,
+   "prompt": null,
+   "dims": [
+    "词性",
+    "主题"
+   ]
+  }
  },
  "/english/vocab-core/unit-03-study-words": {
   "id": "e-vocab-003",
@@ -229,6 +249,17 @@ export const NODE_SPEC = [
   "path": "/english/vocab-core/unit-01-core-verbs",
   "id": "e-vocab-001",
   "file": "english/vocab-core/unit-01-core-verbs.md",
+  "mode": true,
+  "prompt": null,
+  "dims": [
+   "词性",
+   "主题"
+  ]
+ },
+ {
+  "path": "/english/vocab-core/unit-02-core-nouns",
+  "id": "e-vocab-002",
+  "file": "english/vocab-core/unit-02-core-nouns.md",
   "mode": true,
   "prompt": null,
   "dims": [

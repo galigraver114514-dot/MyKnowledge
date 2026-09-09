@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-09-09T11:49:13.644Z",
+ "generatedAt": "2026-09-09T12:00:50.052Z",
  "pages": [
   {
    "path": "/english/vocab-core/unit-01-core-verbs",
@@ -196,6 +196,235 @@
    ]
   },
   {
+   "path": "/english/vocab-core/unit-02-core-nouns",
+   "id": "e-vocab-002",
+   "file": "english/vocab-core/unit-02-core-nouns.md",
+   "mode": true,
+   "prompt": null,
+   "dims": [
+    "词性",
+    "主题"
+   ],
+   "nodes": [
+    {
+     "id": "e-vocab-002.time",
+     "name": "time",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "时间；次数",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "时间·日程"
+      ],
+      "可数": [
+       "✗(常)"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.year",
+     "name": "year",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "年",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "时间·日程"
+      ],
+      "可数": [
+       "✓"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.way",
+     "name": "way",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "路；方法",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "路径·方法"
+      ],
+      "可数": [
+       "✓"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.day",
+     "name": "day",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "天",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "时间·日程"
+      ],
+      "可数": [
+       "✓"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.thing",
+     "name": "thing",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "事情；东西",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "泛指·物件"
+      ],
+      "可数": [
+       "✓"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.man",
+     "name": "man",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "男人",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "人·关系"
+      ],
+      "可数": [
+       "✓"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.world",
+     "name": "world",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "世界",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "空间·世界"
+      ],
+      "可数": [
+       "✓"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.life",
+     "name": "life",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "生活；生命",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "生命·生活"
+      ],
+      "可数": [
+       "✓/✗"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.work",
+     "name": "work",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "工作(不可数)",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "工作·事务"
+      ],
+      "可数": [
+       "✗"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.school",
+     "name": "school",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "学校",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "学习·场所"
+      ],
+      "可数": [
+       "✓"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.friend",
+     "name": "friend",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "朋友",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "人·关系"
+      ],
+      "可数": [
+       "✓"
+      ]
+     }
+    },
+    {
+     "id": "e-vocab-002.money",
+     "name": "money",
+     "kind": "word",
+     "origin": "mechanical",
+     "definition": "钱",
+     "labels": {
+      "词性": [
+       "n."
+      ],
+      "主题": [
+       "金钱·物质"
+      ],
+      "可数": [
+       "✗"
+      ]
+     }
+    }
+   ]
+  },
+  {
    "path": "/math/unit-01-mental-addition",
    "id": "m-001",
    "file": "math/unit-01-mental-addition.md",
@@ -209,7 +438,7 @@
   }
  ],
  "stats": {
-  "pages": 2,
-  "nodes": 12
+  "pages": 3,
+  "nodes": 24
  }
 }

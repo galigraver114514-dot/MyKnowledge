@@ -160,14 +160,14 @@ function buildDir(rel, depth) {
   const key = rel ? 'g-' + rel.replace(/\//g, '-') : 'g-root'
   return { kind: 'group', key, title: labelOf(rel), children }
 }
-for (const top of dirs.filter((d) => d.rel && !d.rel.includes('/')).sort((a, b) => a.rel.localeCompare(b.rel, 'zh', { numeric: true }))) {
-  const g = buildDir(top.rel, 0)
-  if (g) navRoot.push(g)
-}
 for (const f of rootPages) {
   const u = pageNode(f.rel, f.abs, '')
   navRoot.push({ kind: 'page', title: u.title, path: u.path })
   pageFiles.set(u.path, { ...u, track: false })
+}
+for (const top of dirs.filter((d) => d.rel && !d.rel.includes('/')).sort((a, b) => a.rel.localeCompare(b.rel, 'zh', { numeric: true }))) {
+  const g = buildDir(top.rel, 0)
+  if (g) navRoot.push(g)
 }
 
 // ---------- flatten unit registry (ProgressPanel) ----------

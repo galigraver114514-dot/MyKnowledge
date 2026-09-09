@@ -13,6 +13,17 @@
    ]
   },
   {
+   "path": "/english/vocab-core/unit-02-core-nouns",
+   "id": "e-vocab-002",
+   "file": "english/vocab-core/unit-02-core-nouns.md",
+   "mode": true,
+   "prompt": null,
+   "dims": [
+    "词性",
+    "主题"
+   ]
+  },
+  {
    "path": "/math/unit-01-mental-addition",
    "id": "m-001",
    "file": "math/unit-01-mental-addition.md",
