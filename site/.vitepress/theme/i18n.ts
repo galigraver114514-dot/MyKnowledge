@@ -82,6 +82,7 @@ const D: Record<string, Row> = {
   'ds.norecord': { en: 'no record for {d}', zh: '{d} 无记录', ja: '{d} に記録なし' },
   'ds.studyPick': { en: 'study time comes from the timer above (grid & chart include it)', zh: '学习时间由上方计时器记录（方格图与折线图均已包含）', ja: '学習時間は上のタイマーで記録（グリッドとグラフに反映）' },
   'ds.min': { en: 'min', zh: '分', ja: '分' },
+  'ds.med': { en: 'med', zh: '中位', ja: '中央値' },
   'ds.legend': { en: 'click square N = score N · save writes to the selected date', zh: '点第 N 格 = 得 N 分 · 保存写入所选日期', ja: 'N番目をクリックで N 点 · 保存は選択日へ書き込み' },
   // scaffold pages (static copy, follows UI language)
   'home.intro': { en: 'A private learning site: content is public on GitHub Pages, all behavior data stays in your local browser (IndexedDB, real-time). Trackable & restorable.', zh: '私人学习网站：内容公开于 GitHub Pages，行为数据只存本机浏览器（IndexedDB，实时落盘）。可追踪、可复原。', ja: '個人学習サイト：コンテンツはGitHub Pagesで公開、行動データはすべてローカルブラウザ（IndexedDB、リアルタイム）のみ。追跡・復元可能。' },

@@ -62,6 +62,15 @@ const studyByDate = computed(() => {
 })
 const studyToday = computed(() => (studyByDate.value[fmt(now.value)] || 0))
 const todaySessionCount = computed(() => sessions.value.filter((s) => s.date === fmt(now.value)).length)
+// relative study scale for the CURRENT range: max = fullest cell / top of the
+// blue line; middle of the axis = median of the days that actually have study.
+const studyStats = computed(() => {
+  const vals = rangeDates.value.map((d) => studyByDate.value[d] || 0)
+  const nz = vals.filter((v) => v > 0).sort((a, b) => a - b)
+  const max = nz.length ? nz[nz.length - 1] : 0
+  const med = nz.length ? nz[Math.floor((nz.length - 1) / 2)] : 0
+  return { vals, max, med }
+})
 // 24h dial: fraction of day for a timestamp
 function fracOf(ts: string): number {
   const d = new Date(ts)
@@ -170,20 +179,21 @@ function alphaFor(v: number): number {
   if (v <= 8) return 0.72
   return 0.95
 }
-// study grid intensity: 5 depth steps over minutes studied that day
-function alphaForStudy(sec: number): number {
-  const m = sec / 60
-  if (m <= 0) return 0
-  if (m < 10) return 0.18
-  if (m < 20) return 0.36
-  if (m < 40) return 0.56
-  if (m < 80) return 0.76
+// study grid intensity: RELATIVE to the busiest day in the current range
+// (0 = empty, 1 = the max day), 5 depth steps
+function alphaForStudy(sec: number, maxSec: number): number {
+  if (sec <= 0 || maxSec <= 0) return 0
+  const r = sec / maxSec
+  if (r <= 0.2) return 0.2
+  if (r <= 0.4) return 0.4
+  if (r <= 0.6) return 0.62
+  if (r <= 0.8) return 0.8
   return 0.95
 }
 const cellStyle = (d: string) => {
   const rgb = METRICS[mode.value].rgb
   const a = mode.value === 'study'
-    ? alphaForStudy(studyByDate.value[d] || 0)
+    ? alphaForStudy(studyByDate.value[d] || 0, studyStats.value.max)
     : alphaFor(scales.value[d] ? scales.value[d][mode.value] : 0)
   return { background: 'rgba(' + rgb + ',' + a + ')' }
 }
@@ -278,13 +288,21 @@ const chart = computed(() => {
     return d
   }
   const motPts = pts('mot'), concPts = pts('conc')
-  // study line uses a right-hand seconds scale (floor 30 min so short days are visible)
-  const studySecs = rangeDates.value.map((d) => studyByDate.value[d] || 0)
-  const maxStudy = Math.max(1800, ...studySecs)
+  // study line: RELATIVE scale - the busiest day in the range tops the chart;
+  // the middle tick is the median of the days that have study time.
+  const studySecs = studyStats.value.vals
+  const maxStudy = Math.max(1, studyStats.value.max)
   const yS = (sec: number) => PADT + innerH - (sec / maxStudy) * innerH
   const studyPts = rangeDates.value.map((ds, i) => ({ i, x: x(i), y: yS(studySecs[i]), v: studySecs[i], date: ds }))
   const yticks = [0, 2, 4, 6, 8, 10]
-  const studyTicks = [0, Math.round(maxStudy / 2), maxStudy]
+  const studyTicks: { sec: number; label: string }[] = []
+  if (studyStats.value.max > 0) {
+    const maxM = Math.max(1, Math.round(studyStats.value.max / 60))
+    const medM = Math.round(studyStats.value.med / 60)
+    studyTicks.push({ sec: 0, label: '0' })
+    if (medM > 0 && medM < maxM) studyTicks.push({ sec: studyStats.value.med, label: medM + t('ds.min') + ' ' + t('ds.med') })
+    studyTicks.push({ sec: studyStats.value.max, label: maxM + t('ds.min') })
+  }
   const avg = (key: Metric) => {
     const vs = rangeDates.value.map((d) => scales.value[d] ? scales.value[d][key] : 0).filter((v) => v > 0)
     return vs.length ? (vs.reduce((a, b) => a + b, 0) / vs.length).toFixed(1) : '—'
@@ -292,6 +310,7 @@ const chart = computed(() => {
   return {
     W, pathM: path(motPts), pathC: path(concPts), pathS: path(studyPts),
     motPts, concPts, studyPts, x, y, yS, yticks, studyTicks, maxStudy,
+    studyMed: studyStats.value.med,
     avgM: avg('mot'), avgC: avg('conc')
   }
 })
@@ -375,7 +394,7 @@ onBeforeUnmount(() => {
 
       <div class="ds-bar">
         <button v-for="r in RANGES" :key="r" class="ds-range" :class="{ on: r === range }" @click="range = r">{{ r }}{{ t('ds.days') }}</button>
-        <span class="ds-stats">{{ t('ds.avg') }} mot {{ chart.avgM }} · conc {{ chart.avgC }} · {{ t('study.today') }} {{ fmtDur(studyToday) }}</span>
+        <span class="ds-stats">{{ t('ds.avg') }} mot {{ chart.avgM }} · conc {{ chart.avgC }} · {{ t('study.today') }} {{ fmtDur(studyToday) }} · {{ t('ds.med') }} {{ fmtDur(chart.studyMed) }}</span>
       </div>
 
       <!-- metric switch + calendar -->
@@ -424,8 +443,8 @@ onBeforeUnmount(() => {
             <line class="ds-grid" :x1="PADL" :x2="chart.W - PADR" :y1="chart.y(ty)" :y2="chart.y(ty)" />
             <text class="ds-tick" :x="PADL - 6" :y="chart.y(ty) + 3">{{ ty }}</text>
           </g>
-          <g v-for="ty in chart.studyTicks" :key="'s' + ty">
-            <text class="ds-tick ds-tick-r" :x="chart.W - PADR + 3" :y="chart.yS(ty) + 3">{{ Math.round(ty / 60) }}{{ t('ds.min') }}</text>
+          <g v-for="ty in chart.studyTicks" :key="'s' + ty.sec">
+            <text class="ds-tick ds-tick-r" :x="chart.W - PADR + 3" :y="chart.yS(ty.sec) + 3">{{ ty.label }}</text>
           </g>
           <line v-if="hoverIdx != null" class="ds-hline" :x1="chart.x(hoverIdx)" :x2="chart.x(hoverIdx)" :y1="PADT" :y2="H - PADB" />
           <path v-if="chart.pathM" class="ds-line-mot" :d="chart.pathM" />
