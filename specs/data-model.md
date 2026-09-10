@@ -46,7 +46,9 @@ An event is stored in the `events` store (keyPath `id`):
 interface Event {
   id: string;            // crypto.randomUUID()
   ts: string;            // ISO 8601 UTC, stamped when the event is created
-  seq?: number;          // optional stable order when ts collides (v1: id string as tie-break)
+  seq: number;           // monotonic counter, allocated atomically with the write;
+                         // the total order is (ts, seq) - legacy events without
+                         // seq fall back to id
   type: EventType;
   unitId: string | null;
   payload: Record<string, unknown>;
@@ -63,6 +65,7 @@ interface Event {
 | `unit_uncomplete` | required | `{ note? }` | undo completion | redone by unit_complete |
 | `session_start` | null | `{ ua? }` | site session start (page load granularity) | - |
 | `daily_scale` | null | `{ date: 'YYYY-MM-DD', mot: 1-10, conc: 1-10 }` | daily self-rating (motivation/concentration); re-saving the same date keeps the latest by (ts, id) | rewritten on re-save |
+| `study_session` | null | `{ date: 'YYYY-MM-DD', startTs, endTs, seconds }` | one completed timing run from the study timer; `date` = local day of the start; daily totals = sum per date | per-date clear via clearStudyDay |
 | `note_add` *(reserved)* | optional | `{ text }` | not implemented in v1 | - |
 
 > Extensions (e.g. spaced repetition) only add new event types - additive, no

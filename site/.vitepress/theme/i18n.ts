@@ -96,7 +96,15 @@ const D: Record<string, Row> = {
   'home.r3': { en: 'disaster: clear -> import the latest export -> state matches exactly', zh: '灾难恢复：清空 → 导入最新导出 → 状态逐字段一致', ja: '復旧：クリア → 最新エクスポートをインポート → 状態が一致' },
   'graph.intro': { en: 'All node-mode units are joined into one graph: the same concept appearing in several chapters merges into a single node (badge = chapter count). Click a node to open its unit. Clusters are aggregated at runtime over the active dimension - switching dimensions re-clusters the whole graph.', zh: '所有启用 node 模式的单元联合成一张图：同一概念出现在多个章节会合并为同一节点（角标 = 章节数）；点击节点跳回单元页。簇按当前维度运行时跨章节聚合——切换维度即全局重聚。', ja: 'nodeモードの全ユニットを1つのグラフに統合：複数章に現れる同一概念は1ノードに統合（バッジ=章数）。ノードをクリックで該当ユニットへ。クラスタは選択中の次元で動的に集約——次元を切替えると全体が再クラスタ化。' },
   'track.intro': { en: 'Rate two things daily (1-10): mot (motivation, green) and conc (concentration, orange). Data stays in your browser (IndexedDB event log; re-saving a day keeps the latest). Cell color depth = score; the chart plots both lines; switch 7/14/30/100 days.', zh: '每天给两项打分（1–10）：mot（动力，绿）/ conc（专注，橙）。数据只存本机（IndexedDB 事件日志；同一天重复保存取最新）。格子颜色深浅 = 分值；折线图同轴两条线；可切 7/14/30/100 天。', ja: '毎日2項目を1–10で評価：mot（意欲、緑）/ conc（集中、橙）。データはローカルのみ（IndexedDB イベントログ、同日の再保存は最新優先）。セルの濃さ=値。折れ線は2本同時表示、7/14/30/100日で切替。' },
-  'course.intro': { en: 'Course hub. Units under this branch:', zh: '赛道首页。本分支下的单元：', ja: 'コース一覧。このブランチのユニット：' }
+  'course.intro': { en: 'Course hub. Units under this branch:', zh: '赛道首页。本分支下的单元：', ja: 'コース一覧。このブランチのユニット：' },
+  // study timer / clock dial
+  'study.sec': { en: 'Study time · clock (day view)', zh: '学习计时 · 时钟（当日）', ja: '学習タイマー · 時計（当日）' },
+  'study.start': { en: '[ start ]', zh: '[ 开始 ]', ja: '[ 開始 ]' },
+  'study.stop': { en: '[ stop ]', zh: '[ 停止 ]', ja: '[ 停止 ]' },
+  'study.session': { en: 'this session', zh: '本次', ja: '今回' },
+  'study.today': { en: 'today total', zh: '今日合计', ja: '本日合計' },
+  'study.sessions': { en: 'sessions', zh: '次数', ja: '回数' },
+  'study.note': { en: 'blue = studied time on a 24h dial; the timer keeps running across reloads', zh: '蓝色 = 24 小时表盘上的已学习时段；计时跨刷新保持', ja: '青=24時間ダイヤル上の学習時間。リロードしても計測継続' }
 }
 
 const lang = ref<Lang>('en')

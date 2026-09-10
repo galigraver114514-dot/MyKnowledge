@@ -3,7 +3,7 @@
 // 10-square picker + dual line chart with hover crosshair.
 // Data: local IndexedDB (event 'daily_scale', per-date latest wins).
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { openDB, recordEvent, getDailyScales, clearDailyScale } from '../../../../tracker/db.js'
+import { openDB, recordEvent, getDailyScales, clearDailyScale, getStudySessions, sumStudyByDate } from '../../../../tracker/db.js'
 import { useT } from '../i18n'
 const { t } = useT()
 const fmtT = (k: string, m: Record<string, string | number>) => {
@@ -35,6 +35,104 @@ const chartWrap = ref<HTMLElement | null>(null)
 const width = ref(0)
 const hoverIdx = ref<number | null>(null)
 let ro: ResizeObserver | null = null
+// ---- study timer / clock dial ----
+const STUDY_KEY = 'mk.study.started'
+const sessions = ref<{ id: string; date: string; startTs: string; endTs: string; seconds: number }[]>([])
+const now = ref(new Date())
+const running = ref(false)
+const startedAt = ref<string | null>(null)
+const sessionErr = ref('')
+let clockTimer: ReturnType<typeof setInterval> | null = null
+
+const hhmmss = (d: Date) => pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds())
+function fmtDur(sec: number): string {
+  const s = Math.max(0, Math.floor(sec))
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60
+  if (h) return h + 'h' + pad(m) + 'm'
+  if (m) return m + 'm' + pad(ss) + 's'
+  return ss + 's'
+}
+const elapsed = computed(() => (running.value && startedAt.value ? Math.floor((now.value.getTime() - new Date(startedAt.value).getTime()) / 1000) : 0))
+const studyByDate = computed(() => {
+  const m = sumStudyByDate(sessions.value)
+  const todayStr = fmt(now.value)
+  if (elapsed.value > 0) m[todayStr] = (m[todayStr] || 0) + elapsed.value   // live portion
+  return m
+})
+const studyToday = computed(() => (studyByDate.value[fmt(now.value)] || 0))
+const todaySessionCount = computed(() => sessions.value.filter((s) => s.date === fmt(now.value)).length)
+// 24h dial: fraction of day for a timestamp
+function fracOf(ts: string): number {
+  const d = new Date(ts)
+  return (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) / 86400
+}
+const CX = 110, CY = 110, R = 88
+function arcPath(a0: number, a1: number, r = R): string {
+  const pt = (t: number) => {
+    const ang = t * 2 * Math.PI - Math.PI / 2
+    return [CX + r * Math.cos(ang), CY + r * Math.sin(ang)]
+  }
+  const clamp = (x: number) => Math.max(0, Math.min(1, x))
+  const s = clamp(a0), e = clamp(a1)
+  if (e - s < 0.0001) return ''
+  const [x0, y0] = pt(s), [x1, y1] = pt(e)
+  const large = e - s > 0.5 ? 1 : 0
+  return 'M ' + x0.toFixed(2) + ' ' + y0.toFixed(2) + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x1.toFixed(2) + ' ' + y1.toFixed(2)
+}
+const todayArcs = computed(() => {
+  const todayStr = fmt(now.value)
+  const out: { d: string; live: boolean }[] = []
+  for (const s of sessions.value) {
+    const endDay = fmt(new Date(s.endTs))
+    if (s.date === todayStr && endDay === todayStr) out.push({ d: arcPath(fracOf(s.startTs), fracOf(s.endTs)), live: false })
+    else if (s.date === todayStr) out.push({ d: arcPath(fracOf(s.startTs), 1), live: false })            // crosses midnight
+    else if (endDay === todayStr) out.push({ d: arcPath(0, fracOf(s.endTs)), live: false })
+  }
+  if (running.value && startedAt.value) {
+    const st = startedAt.value
+    if (fmt(new Date(st)) === todayStr) out.push({ d: arcPath(fracOf(st), fracOf(now.value.toISOString())), live: true })
+    else out.push({ d: arcPath(0, fracOf(now.value.toISOString())), live: true })
+  }
+  return out.filter((a) => a.d)
+})
+const hourTicks = [0, 3, 6, 9, 12, 15, 18, 21]
+function tickPos(h: number, r0: number, r1: number) {
+  const ang = (h / 24) * 2 * Math.PI - Math.PI / 2
+  return { x1: CX + r0 * Math.cos(ang), y1: CY + r0 * Math.sin(ang), x2: CX + r1 * Math.cos(ang), y2: CY + r1 * Math.sin(ang) }
+}
+function startStudy() {
+  if (running.value) return
+  startedAt.value = new Date().toISOString()
+  running.value = true
+  try { localStorage.setItem(STUDY_KEY, startedAt.value) } catch { /* ignore */ }
+  sessionErr.value = ''
+}
+async function stopStudy() {
+  if (!running.value || !startedAt.value) return
+  const startIso = startedAt.value
+  const endIso = new Date().toISOString()
+  const seconds = Math.max(0, Math.round((new Date(endIso).getTime() - new Date(startIso).getTime()) / 1000))
+  running.value = false
+  startedAt.value = null
+  try { localStorage.removeItem(STUDY_KEY) } catch { /* ignore */ }
+  if (seconds < 1) { sessionErr.value = 'session under 1s - not recorded'; return }
+  try {
+    const db = await ensureDb()
+    const ev = await recordEvent(db, {
+      type: 'study_session', unitId: null,
+      payload: { date: fmt(new Date(startIso)), startTs: startIso, endTs: endIso, seconds },
+      source: 'manual'
+    })
+    sessions.value = [...sessions.value, { id: ev.id, date: ev.payload.date, startTs: startIso, endTs: endIso, seconds }]
+    msg.value = 'study +' + fmtDur(seconds)
+  } catch (e) { sessionErr.value = (e as Error).message || String(e) }
+}
+function loadRunning() {
+  try {
+    const v = localStorage.getItem(STUDY_KEY)
+    if (v) { startedAt.value = v; running.value = true }
+  } catch { /* ignore */ }
+}
 
 function pad(n: number) { return String(n).padStart(2, '0') }
 function fmt(d: Date) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) }
@@ -85,7 +183,11 @@ async function ensureDb() {
   if (!dbRef.value) dbRef.value = await openDB()
   return dbRef.value
 }
-async function refresh() { const db = await ensureDb(); scales.value = await getDailyScales(db) }
+async function refresh() {
+  const db = await ensureDb()
+  scales.value = await getDailyScales(db)
+  sessions.value = await getStudySessions(db)
+}
 function pick(d: string) {
   selectedDate.value = d
   const s = scales.value[d]
@@ -202,6 +304,8 @@ onMounted(async () => {
     await ensureDb(); await refresh()
   } catch (e) { error.value = 'no local storage: ' + (e as Error).message }
   pick(today().str)
+  loadRunning()                                  // resume an unfinished session
+  clockTimer = setInterval(() => { now.value = new Date() }, 1000)
   loaded.value = true
   await nextTick()
   measure()
@@ -213,6 +317,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', measure)
   ro?.disconnect()
+  if (clockTimer) clearInterval(clockTimer)
 })
 </script>
 
@@ -221,9 +326,33 @@ onBeforeUnmount(() => {
     <p v-if="error" class="ds-err">! {{ error }}</p>
     <p v-else-if="!loaded" class="ds-mut">{{ t('ds.reading') }}</p>
     <template v-else>
+      <!-- study timer + 24h clock dial (merged with mot/conc tracking) -->
+      <div class="ds-sec">{{ t('study.sec') }}</div>
+      <div class="ds-study">
+        <svg class="ds-dial" viewBox="0 0 220 220" role="img" aria-label="24h study dial">
+          <circle :cx="CX" :cy="CY" :r="R" class="ds-dial-ring" />
+          <line v-for="h in hourTicks" :key="h" class="ds-dial-tick"
+            :x1="tickPos(h, R - 6, R).x1" :y1="tickPos(h, R - 6, R).y1"
+            :x2="tickPos(h, R - 6, R).x2" :y2="tickPos(h, R - 6, R).y2" />
+          <path v-for="(a, i) in todayArcs" :key="i" :d="a.d" class="ds-arc" :class="{ live: a.live }" />
+          <text class="ds-clock" :x="CX" :y="CY - 6">{{ hhmmss(now) }}</text>
+          <text class="ds-clock-sub" :x="CX" :y="CY + 14">{{ fmtDur(elapsed) }} · {{ t('study.session') }}</text>
+          <text class="ds-clock-total" :x="CX" :y="CY + 34">{{ fmtDur(studyToday) }} · {{ t('study.today') }}</text>
+        </svg>
+        <div class="ds-study-side">
+          <p class="ds-study-line">
+            <button class="ds-study-btn" :class="{ on: !running }" :disabled="running" @click="startStudy">{{ t('study.start') }}</button>
+            <button class="ds-study-btn" :class="{ on: running }" :disabled="!running" @click="stopStudy">{{ t('study.stop') }}</button>
+          </p>
+          <p class="ds-study-meta">{{ t('study.sessions') }}: {{ todaySessionCount }} · {{ fmtDur(studyToday) }}</p>
+          <p v-if="sessionErr" class="ds-err">! {{ sessionErr }}</p>
+          <p class="ds-note ds-study-note">{{ t('study.note') }}</p>
+        </div>
+      </div>
+
       <div class="ds-bar">
         <button v-for="r in RANGES" :key="r" class="ds-range" :class="{ on: r === range }" @click="range = r">{{ r }}{{ t('ds.days') }}</button>
-        <span class="ds-stats">{{ t('ds.avg') }} mot {{ chart.avgM }} · conc {{ chart.avgC }}</span>
+        <span class="ds-stats">{{ t('ds.avg') }} mot {{ chart.avgM }} · conc {{ chart.avgC }} · {{ t('study.today') }} {{ fmtDur(studyToday) }}</span>
       </div>
 
       <!-- metric switch + calendar -->
@@ -237,7 +366,7 @@ onBeforeUnmount(() => {
         <div v-for="(col, ci) in calendarCols" :key="ci" class="ds-col">
           <button v-for="c in col" :key="c.date" class="ds-cell" :class="{ today: c.date === selectedDate }"
             :disabled="c.date > today().str" :style="cellStyle(c.date)"
-            :title="c.date + ' mot=' + (scales[c.date] ? scales[c.date].mot : '-') + ' conc=' + (scales[c.date] ? scales[c.date].conc : '-')"
+            :title="c.date + ' mot=' + (scales[c.date] ? scales[c.date].mot : '-') + ' conc=' + (scales[c.date] ? scales[c.date].conc : '-') + ' study=' + (studyByDate[c.date] ? fmtDur(studyByDate[c.date]) : '-')"
             @click="pick(c.date)"></button>
         </div>
       </div>
@@ -297,6 +426,27 @@ onBeforeUnmount(() => {
 .ds-err { color: var(--err); }
 .ds-mut { color: var(--muted); }
 .ds-bar, .ds-switch, .ds-picker, .ds-form { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+/* ---- study timer + 24h dial ---- */
+.ds-study { display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap; margin: 0.2rem 0 0.6rem; }
+.ds-dial { width: 200px; height: 200px; flex: none; }
+.ds-dial-ring { fill: none; stroke: var(--dimline); stroke-width: 1.5; }
+.ds-dial-tick { stroke: var(--muted); stroke-width: 1; }
+.ds-arc { fill: none; stroke: var(--accent); stroke-width: 10; stroke-linecap: butt; }
+.ds-arc.live { stroke: #7aa7ff; stroke-dasharray: 3 3; }
+.ds-clock { font-family: var(--mono); font-size: 20px; font-weight: 700; fill: #000; text-anchor: middle; }
+.ds-clock-sub { font-family: var(--mono); font-size: 11px; fill: var(--muted); text-anchor: middle; }
+.ds-clock-total { font-family: var(--mono); font-size: 11px; font-weight: 700; fill: var(--accent); text-anchor: middle; }
+.ds-study-side { display: flex; flex-direction: column; gap: 0.25rem; }
+.ds-study-line { margin: 0; display: flex; gap: 0.4rem; }
+.ds-study-btn {
+  border: 1px solid var(--dimline); background: none; color: var(--muted);
+  cursor: pointer; font: inherit; font-size: 0.9rem; padding: 0.15rem 0.7rem;
+}
+.ds-study-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.ds-study-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.ds-study-btn:disabled { opacity: 0.5; cursor: default; }
+.ds-study-meta { margin: 0; color: var(--fg); font-size: 0.88rem; }
+.ds-study-note { margin: 0; max-width: 34ch; }
 .ds-bar { margin: 0.4rem 0 0.8rem; }
 .ds-range, .ds-mode {
   border: 1px solid var(--dimline); background: none; color: var(--muted);

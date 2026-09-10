@@ -4,6 +4,7 @@
 import 'fake-indexeddb/auto'
 import assert from 'node:assert'
 import { openDB, closeDB, recordEvent, getState, getUnitState, getDailyScales,
+         getStudySessions, getStudySeconds, sumStudyByDate, clearStudyDay,
          exportData, importData, clearEvents, takeSnapshot, listSnapshots, restoreSnapshot } from '../db.js'
 
 const db = await openDB()
@@ -84,6 +85,32 @@ const afterClear = await getDailyScales(db)
 assert.strictEqual(afterClear['2026-09-10'], undefined)
 assert.strictEqual(afterClear['2026-09-09'].mot, 8)   // other date untouched
 ok('cleared date gone, others kept')
+
+console.log('T9 study sessions: recorded, summed per date, clearable')
+await recordEvent(db, { type: 'study_session', unitId: null, payload: { date: '2026-09-09', startTs: '2026-09-09T01:00:00.000Z', endTs: '2026-09-09T01:10:00.000Z', seconds: 600 } })
+await recordEvent(db, { type: 'study_session', unitId: null, payload: { date: '2026-09-09', startTs: '2026-09-09T02:00:00.000Z', endTs: '2026-09-09T02:05:00.000Z', seconds: 300 } })
+await recordEvent(db, { type: 'study_session', unitId: null, payload: { date: '2026-09-10', startTs: '2026-09-10T03:00:00.000Z', endTs: '2026-09-10T03:20:00.000Z', seconds: 1200 } })
+const sess = await getStudySessions(db)
+assert.strictEqual(sess.length, 3)
+assert.strictEqual(sess[0].startTs < sess[1].startTs, true)
+const sums = await getStudySeconds(db)
+assert.strictEqual(sums['2026-09-09'], 900)
+assert.strictEqual(sums['2026-09-10'], 1200)
+assert.strictEqual(sumStudyByDate(sess)['2026-09-09'], 900)
+assert.strictEqual(await clearStudyDay(db, '2026-09-10'), 1)
+assert.strictEqual((await getStudySeconds(db))['2026-09-10'], undefined)
+ok('study sessions aggregated per date; one date cleared')
+
+console.log('T10 same-millisecond writes: seq decides (not random id)')
+const TS = '2026-09-11T00:00:00.000Z'
+const a = await recordEvent(db, { type: 'daily_scale', unitId: null, ts: TS, payload: { date: '2026-09-11', mot: 1, conc: 1 } })
+const b = await recordEvent(db, { type: 'daily_scale', unitId: null, ts: TS, payload: { date: '2026-09-11', mot: 9, conc: 9 } })
+assert.strictEqual(a.ts, b.ts)
+assert.strictEqual(b.seq > a.seq, true, 'seq must be monotonic')
+const s11 = (await getDailyScales(db))['2026-09-11']
+assert.strictEqual(s11.mot, 9)   // the later write wins, regardless of id ordering
+assert.strictEqual(s11.conc, 9)
+ok('same-ts events ordered by seq (deterministic latest-wins)')
 
 closeDB(db)
 console.log('\nALL PASS: ' + pass + ' checks -> data layer verified (spec restore standard met)')

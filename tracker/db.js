@@ -89,10 +89,38 @@ export function newId() {
 }
 export function nowIso() { return new Date().toISOString() }
 
+// Total order over events: ts first, then the monotonic seq (older events
+// without seq fall back to id). Without seq, two events written in the same
+// millisecond would be ordered randomly -> intermittent "latest wins" bugs.
+export function evOrder(a, b) {
+  if (a.ts !== b.ts) return a.ts < b.ts ? -1 : 1
+  const as = a.seq, bs = b.seq
+  if (as != null && bs != null && as !== bs) return as - bs
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+}
+
 // ---------- event write (real-time persistence: a single tx commit = durable) ----------
-export async function recordEvent(db, { type, unitId = null, payload = {}, source = 'manual', id = newId(), ts = nowIso() }) {
+// Allocates a monotonic seq inside the same transaction as the write, so the
+// order is atomic even for multiple writes within the same millisecond.
+export async function recordEvent(db, { type, unitId = null, payload = {}, source = 'manual', id = newId(), ts = nowIso(), seq }) {
+  if (seq != null) {
+    const ev = { id, ts, seq, type, unitId, payload, source }
+    await put(db, 'events', ev)
+    return ev
+  }
+  const tx = db.transaction(['events', 'meta'], 'readwrite')
+  const events = tx.objectStore('events')
+  const meta = tx.objectStore('meta')
   const ev = { id, ts, type, unitId, payload, source }
-  await put(db, 'events', ev)
+  const get = meta.get('seq')
+  get.onsuccess = () => {
+    const next = (Number(get.result && get.result.value) || 0) + 1
+    meta.put({ key: 'seq', value: next })
+    ev.seq = next
+    events.put(ev)
+  }
+  get.onerror = () => { tx.abort() }
+  await txP(tx)
   return ev
 }
 
@@ -100,7 +128,7 @@ export async function recordEvent(db, { type, unitId = null, payload = {}, sourc
 export function deriveState(events) {
   const map = new Map()
   const byUnit = {}
-  for (const ev of [...events].sort((a, b) => (a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : a.id < b.id ? -1 : 1))) {
+  for (const ev of [...events].sort(evOrder)) {
     const u = ev.unitId
     if (!u) continue
     if (!byUnit[u]) {
@@ -139,13 +167,16 @@ export async function getUnitState(db, unitId) {
 // Same-day saves are last-write-wins by (ts, id).
 export async function getDailyScales(db) {
   const evs = await allOf(db, 'events')
-  const out = {}
+  const best = {}
   for (const ev of evs) {
     if (ev.type !== 'daily_scale' || !ev.payload || typeof ev.payload.date !== 'string') continue
-    const cur = out[ev.payload.date]
-    const newer = !cur || ev.ts > cur.ts || (ev.ts === cur.ts && ev.id > cur.id)
-    if (newer) out[ev.payload.date] = { mot: Number(ev.payload.mot) || 0, conc: Number(ev.payload.conc) || 0 }
+    const d = ev.payload.date
+    if (!best[d] || evOrder(ev, best[d].ev) > 0) {
+      best[d] = { ev, mot: Number(ev.payload.mot) || 0, conc: Number(ev.payload.conc) || 0 }
+    }
   }
+  const out = {}
+  for (const d of Object.keys(best)) out[d] = { mot: best[d].mot, conc: best[d].conc }
   return out // { 'YYYY-MM-DD': { mot, conc } }
 }
 
@@ -157,6 +188,34 @@ export async function clearDailyScale(db, date) {
   let n = 0
   for (const ev of evs) {
     if (ev.type === 'daily_scale' && ev.payload && ev.payload.date === date) { os.delete(ev.id); n += 1 }
+  }
+  await txP(tx)
+  return n
+}
+
+// ---------- study sessions ----------
+// One 'study_session' event per completed timing run:
+// payload { date:'YYYY-MM-DD', startTs, endTs, seconds }.
+export async function getStudySessions(db) {
+  const evs = await allOf(db, 'events')
+  return evs
+    .filter((ev) => ev.type === 'study_session' && ev.payload && typeof ev.payload.date === 'string')
+    .map((ev) => ({ id: ev.id, date: ev.payload.date, startTs: ev.payload.startTs, endTs: ev.payload.endTs, seconds: Number(ev.payload.seconds) || 0 }))
+    .sort((a, b) => (a.startTs === b.startTs ? 0 : a.startTs < b.startTs ? -1 : 1))
+}
+export function sumStudyByDate(sessions) {
+  const m = {}
+  for (const s of sessions) m[s.date] = (m[s.date] || 0) + s.seconds
+  return m
+}
+export async function getStudySeconds(db) { return sumStudyByDate(await getStudySessions(db)) }
+export async function clearStudyDay(db, date) {
+  const evs = await allOf(db, 'events')
+  const tx = db.transaction('events', 'readwrite')
+  const os = tx.objectStore('events')
+  let n = 0
+  for (const ev of evs) {
+    if (ev.type === 'study_session' && ev.payload && ev.payload.date === date) { os.delete(ev.id); n += 1 }
   }
   await txP(tx)
   return n
@@ -188,12 +247,21 @@ export async function importData(db, data) {
   validateExport(data)
   const existing = await allOf(db, 'events')
   const have = new Set(existing.map((e) => e.id))
-  let imported = 0, skipped = 0
-  const tx = db.transaction('events', 'readwrite')
+  let imported = 0, skipped = 0, maxSeq = 0
+  const tx = db.transaction(['events', 'meta'], 'readwrite')
   const os = tx.objectStore('events')
+  const meta = tx.objectStore('meta')
   for (const ev of data.events) {
     if (have.has(ev.id)) { skipped += 1; continue }
     os.put(ev); imported += 1
+    if (ev.seq != null && Number(ev.seq) > maxSeq) maxSeq = Number(ev.seq)
+  }
+  if (maxSeq > 0) {
+    const g = meta.get('seq')
+    g.onsuccess = () => {
+      const cur = Number(g.result && g.result.value) || 0
+      if (maxSeq > cur) meta.put({ key: 'seq', value: maxSeq })
+    }
   }
   await txP(tx)
   return { imported, skipped }
