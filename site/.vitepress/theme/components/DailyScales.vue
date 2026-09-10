@@ -68,8 +68,8 @@ const studyStats = computed(() => {
   const vals = rangeDates.value.map((d) => studyByDate.value[d] || 0)
   const nz = vals.filter((v) => v > 0).sort((a, b) => a - b)
   const max = nz.length ? nz[nz.length - 1] : 0
-  const med = nz.length ? nz[Math.floor((nz.length - 1) / 2)] : 0
-  return { vals, max, med }
+  const avg = nz.length ? nz.reduce((a, b) => a + b, 0) / nz.length : 0
+  return { vals, max, avg }
 })
 // 24h dial: fraction of day for a timestamp
 function fracOf(ts: string): number {
@@ -298,9 +298,9 @@ const chart = computed(() => {
   const studyTicks: { sec: number; label: string }[] = []
   if (studyStats.value.max > 0) {
     const maxM = Math.max(1, Math.round(studyStats.value.max / 60))
-    const medM = Math.round(studyStats.value.med / 60)
+    const avgM = Math.round(studyStats.value.avg / 60)
     studyTicks.push({ sec: 0, label: '0' })
-    if (medM > 0 && medM < maxM) studyTicks.push({ sec: studyStats.value.med, label: medM + t('ds.min') + ' ' + t('ds.med') })
+    if (avgM > 0 && avgM < maxM) studyTicks.push({ sec: studyStats.value.avg, label: avgM + t('ds.min') + ' ' + t('ds.avg') })
     studyTicks.push({ sec: studyStats.value.max, label: maxM + t('ds.min') })
   }
   const avg = (key: Metric) => {
@@ -310,7 +310,7 @@ const chart = computed(() => {
   return {
     W, pathM: path(motPts), pathC: path(concPts), pathS: path(studyPts),
     motPts, concPts, studyPts, x, y, yS, yticks, studyTicks, maxStudy,
-    studyMed: studyStats.value.med,
+    studyAvg: studyStats.value.avg,
     avgM: avg('mot'), avgC: avg('conc')
   }
 })
@@ -394,7 +394,7 @@ onBeforeUnmount(() => {
 
       <div class="ds-bar">
         <button v-for="r in RANGES" :key="r" class="ds-range" :class="{ on: r === range }" @click="range = r">{{ r }}{{ t('ds.days') }}</button>
-        <span class="ds-stats">{{ t('ds.avg') }} mot {{ chart.avgM }} · conc {{ chart.avgC }} · {{ t('study.today') }} {{ fmtDur(studyToday) }} · {{ t('ds.med') }} {{ fmtDur(chart.studyMed) }}</span>
+        <span class="ds-stats">{{ t('ds.avg') }} mot {{ chart.avgM }} · conc {{ chart.avgC }} · {{ t('study.today') }} {{ fmtDur(studyToday) }} · {{ t('ds.avg') }} {{ fmtDur(chart.studyAvg) }}</span>
       </div>
 
       <!-- metric switch + calendar -->
