@@ -15,7 +15,8 @@ const fmtT = (k: string, m: Record<string, string | number>) => {
 const RANGES = [7, 14, 30, 100]
 const METRICS = {
   mot: { rgb: '16, 120, 60', solid: '#16803c', label: 'mot' },
-  conc: { rgb: '217, 92, 8', solid: '#d95c08', label: 'conc' }
+  conc: { rgb: '217, 92, 8', solid: '#d95c08', label: 'conc' },
+  study: { rgb: '9, 105, 218', solid: '#0969da', label: 'study' }
 } as const
 type Metric = keyof typeof METRICS
 
@@ -169,11 +170,22 @@ function alphaFor(v: number): number {
   if (v <= 8) return 0.72
   return 0.95
 }
+// study grid intensity: 5 depth steps over minutes studied that day
+function alphaForStudy(sec: number): number {
+  const m = sec / 60
+  if (m <= 0) return 0
+  if (m < 10) return 0.18
+  if (m < 20) return 0.36
+  if (m < 40) return 0.56
+  if (m < 80) return 0.76
+  return 0.95
+}
 const cellStyle = (d: string) => {
-  const s = scales.value[d]
-  const v = s ? s[mode.value] : 0
   const rgb = METRICS[mode.value].rgb
-  return { background: 'rgba(' + rgb + ',' + alphaFor(v) + ')' }
+  const a = mode.value === 'study'
+    ? alphaForStudy(studyByDate.value[d] || 0)
+    : alphaFor(scales.value[d] ? scales.value[d][mode.value] : 0)
+  return { background: 'rgba(' + rgb + ',' + a + ')' }
 }
 
 function setScore(k: number) {
@@ -266,12 +278,22 @@ const chart = computed(() => {
     return d
   }
   const motPts = pts('mot'), concPts = pts('conc')
+  // study line uses a right-hand seconds scale (floor 30 min so short days are visible)
+  const studySecs = rangeDates.value.map((d) => studyByDate.value[d] || 0)
+  const maxStudy = Math.max(1800, ...studySecs)
+  const yS = (sec: number) => PADT + innerH - (sec / maxStudy) * innerH
+  const studyPts = rangeDates.value.map((ds, i) => ({ i, x: x(i), y: yS(studySecs[i]), v: studySecs[i], date: ds }))
   const yticks = [0, 2, 4, 6, 8, 10]
+  const studyTicks = [0, Math.round(maxStudy / 2), maxStudy]
   const avg = (key: Metric) => {
     const vs = rangeDates.value.map((d) => scales.value[d] ? scales.value[d][key] : 0).filter((v) => v > 0)
     return vs.length ? (vs.reduce((a, b) => a + b, 0) / vs.length).toFixed(1) : '—'
   }
-  return { W, pathM: path(motPts), pathC: path(concPts), motPts, concPts, x, y, yticks, avgM: avg('mot'), avgC: avg('conc') }
+  return {
+    W, pathM: path(motPts), pathC: path(concPts), pathS: path(studyPts),
+    motPts, concPts, studyPts, x, y, yS, yticks, studyTicks, maxStudy,
+    avgM: avg('mot'), avgC: avg('conc')
+  }
 })
 
 function onMove(e: MouseEvent) {
@@ -293,7 +315,8 @@ const tip = computed(() => {
     left: Math.max(4, Math.min(chart.value.W - 170, X + 8)),
     date: d,
     mot: s ? s.mot : null,
-    conc: s ? s.conc : null
+    conc: s ? s.conc : null,
+    study: studyByDate.value[d] || 0
   }
 })
 
@@ -357,7 +380,7 @@ onBeforeUnmount(() => {
 
       <!-- metric switch + calendar -->
       <div class="ds-switch">
-        <button v-for="m in (['mot', 'conc'] as Metric[])" :key="m" class="ds-mode"
+        <button v-for="m in (['mot', 'conc', 'study'] as Metric[])" :key="m" class="ds-mode"
           :class="{ on: mode === m }" :style="mode === m ? { background: METRICS[m].solid, color: '#fff', borderColor: METRICS[m].solid } : {}"
           @click="mode = m">{{ m }}</button>
         <span class="ds-switch-note">{{ t('ds.calnote') }}</span>
@@ -372,6 +395,7 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- 10-square picker for the active metric on the selected date -->
+      <template v-if="mode !== 'study'">
       <div class="ds-sec">{{ selectedDate }} · {{ t('ds.fill') }} {{ mode }} (mot {{ mot }} / conc {{ conc }})</div>
       <div class="ds-picker">
         <button v-for="k in 10" :key="k" class="ds-box"
@@ -389,6 +413,8 @@ onBeforeUnmount(() => {
         <span class="ds-msg">{{ msg }}</span>
         <span v-if="saveErr" class="ds-err">! {{ saveErr }}</span>
       </div>
+      </template>
+      <p v-else class="ds-note">{{ t('ds.studyPick') }}</p>
 
       <!-- line chart: hover to inspect, no date axis clutter -->
       <div class="ds-sec">{{ t('ds.trend') }}</div>
@@ -398,23 +424,30 @@ onBeforeUnmount(() => {
             <line class="ds-grid" :x1="PADL" :x2="chart.W - PADR" :y1="chart.y(ty)" :y2="chart.y(ty)" />
             <text class="ds-tick" :x="PADL - 6" :y="chart.y(ty) + 3">{{ ty }}</text>
           </g>
+          <g v-for="ty in chart.studyTicks" :key="'s' + ty">
+            <text class="ds-tick ds-tick-r" :x="chart.W - PADR + 3" :y="chart.yS(ty) + 3">{{ Math.round(ty / 60) }}{{ t('ds.min') }}</text>
+          </g>
           <line v-if="hoverIdx != null" class="ds-hline" :x1="chart.x(hoverIdx)" :x2="chart.x(hoverIdx)" :y1="PADT" :y2="H - PADB" />
           <path v-if="chart.pathM" class="ds-line-mot" :d="chart.pathM" />
           <path v-if="chart.pathC" class="ds-line-conc" :d="chart.pathC" />
+          <path v-if="chart.pathS" class="ds-line-study" :d="chart.pathS" />
           <template v-if="hoverIdx != null">
             <circle v-if="chart.motPts[hoverIdx] && chart.motPts[hoverIdx].v > 0" class="ds-dot-mot" :cx="chart.motPts[hoverIdx].x" :cy="chart.motPts[hoverIdx].y" r="3.2" />
             <circle v-if="chart.concPts[hoverIdx] && chart.concPts[hoverIdx].v > 0" class="ds-dot-conc" :cx="chart.concPts[hoverIdx].x" :cy="chart.concPts[hoverIdx].y" r="3.2" />
+            <circle v-if="chart.studyPts[hoverIdx] && chart.studyPts[hoverIdx].v > 0" class="ds-dot-study" :cx="chart.studyPts[hoverIdx].x" :cy="chart.studyPts[hoverIdx].y" r="3.2" />
           </template>
         </svg>
         <div v-if="tip" class="ds-tip">
           <div class="ds-tip-date">{{ tip.date }}</div>
           <div><i class="ds-dot" style="background:#16803c"></i>mot: {{ tip.mot ?? '—' }}</div>
           <div><i class="ds-dot" style="background:#d95c08"></i>conc: {{ tip.conc ?? '—' }}</div>
+          <div><i class="ds-dot" style="background:#0969da"></i>study: {{ fmtDur(tip.study) }}</div>
         </div>
       </div>
       <div class="ds-legend">
         <span class="ds-legend-item"><i class="ds-dot" style="background:#16803c"></i>mot</span>
         <span class="ds-legend-item"><i class="ds-dot" style="background:#d95c08"></i>conc</span>
+        <span class="ds-legend-item"><i class="ds-dot" style="background:#0969da"></i>study</span>
         <span class="ds-note">{{ t('ds.legend') }}</span>
       </div>
     </template>
@@ -493,6 +526,9 @@ onBeforeUnmount(() => {
 .ds-line-conc { fill: none; stroke: #d95c08; stroke-width: 1.6; }
 .ds-dot-mot { fill: #16803c; stroke: #fff; stroke-width: 0.8; }
 .ds-dot-conc { fill: #d95c08; stroke: #fff; stroke-width: 0.8; }
+.ds-line-study { fill: none; stroke: #0969da; stroke-width: 1.6; }
+.ds-dot-study { fill: #0969da; stroke: #fff; stroke-width: 0.8; }
+.ds-tick-r { fill: #0969da; font-size: 8px; text-anchor: start; }
 .ds-tip {
   position: absolute; top: 6px; pointer-events: none; z-index: 5;
   border: 1px solid var(--dimline); background: #fff; color: #000;

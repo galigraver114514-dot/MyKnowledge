@@ -48,9 +48,11 @@ npm run demo         # 3) tracker demo page    (http://localhost:4173)
 ## Tracking pages
 
 - **/track - Tracking calendar**: daily self-rating (mot 1-10 green / conc 1-10
-  orange) on a GitHub-style calendar + dual line chart (7/14/30/100 days), plus
-  a **study timer** with a 24h clock dial (blue = studied time today, center
-  shows the current time and this session's duration). All of it is local
+  orange) on a GitHub-style calendar + line chart (7/14/30/100 days), plus a
+  **study timer** with a 24h clock dial (blue = studied time today, center shows
+  the current time and this session's duration). The calendar switch has three
+  modes (mot / conc / **study**, blue depth = minutes studied) and the chart
+  plots three lines (study uses a right-hand minutes axis). All of it is local
   IndexedDB events (`daily_scale`, `study_session`).
 - **/graph - Knowledge graph**: cross-chapter node graph (opt-in node mode).
 - **/** - learning map with the local progress panel.
