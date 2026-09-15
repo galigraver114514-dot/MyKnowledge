@@ -3,7 +3,7 @@
 // 10-square picker + dual line chart with hover crosshair.
 // Data: local IndexedDB (event 'daily_scale', per-date latest wins).
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { openDB, recordEvent, getDailyScales, clearDailyScale, getStudySessions, sumStudyByDate } from '../../../../tracker/db.js'
+import { openDB, recordEvent, getDailyScales, clearDailyScale, getStudySessions, sumStudyByDate, splitSessionByDay } from '../../../../tracker/db.js'
 import { useT } from '../i18n'
 const { t } = useT()
 const fmtT = (k: string, m: Record<string, string | number>) => {
@@ -55,9 +55,14 @@ function fmtDur(sec: number): string {
 }
 const elapsed = computed(() => (running.value && startedAt.value ? Math.floor((now.value.getTime() - new Date(startedAt.value).getTime()) / 1000) : 0))
 const studyByDate = computed(() => {
-  const m = sumStudyByDate(sessions.value)
-  const todayStr = fmt(now.value)
-  if (elapsed.value > 0) m[todayStr] = (m[todayStr] || 0) + elapsed.value   // live portion
+  const m = sumStudyByDate(sessions.value)              // already split per local day
+  if (running.value && startedAt.value) {
+    const nowIso = now.value.toISOString()
+    if (nowIso > startedAt.value) {
+      // live portion is split at midnight too - yesterday's part stays yesterday
+      for (const g of splitSessionByDay(startedAt.value, nowIso)) m[g.date] = (m[g.date] || 0) + g.seconds
+    }
+  }
   return m
 })
 const studyToday = computed(() => (studyByDate.value[fmt(now.value)] || 0))
@@ -92,16 +97,18 @@ function arcPath(a0: number, a1: number, r = R): string {
 const todayArcs = computed(() => {
   const todayStr = fmt(now.value)
   const out: { d: string; live: boolean }[] = []
-  for (const s of sessions.value) {
-    const endDay = fmt(new Date(s.endTs))
-    if (s.date === todayStr && endDay === todayStr) out.push({ d: arcPath(fracOf(s.startTs), fracOf(s.endTs)), live: false })
-    else if (s.date === todayStr) out.push({ d: arcPath(fracOf(s.startTs), 1), live: false })            // crosses midnight
-    else if (endDay === todayStr) out.push({ d: arcPath(0, fracOf(s.endTs)), live: false })
+  const addSeg = (startIso: string, endIso: string, live: boolean) => {
+    for (const g of splitSessionByDay(startIso, endIso)) {
+      if (g.date !== todayStr) continue
+      const s = fracOf(g.startTs)
+      let e = fracOf(g.endTs)
+      if (e <= s) e = 1                 // segment ending exactly at midnight
+      out.push({ d: arcPath(s, e), live })
+    }
   }
-  if (running.value && startedAt.value) {
-    const st = startedAt.value
-    if (fmt(new Date(st)) === todayStr) out.push({ d: arcPath(fracOf(st), fracOf(now.value.toISOString())), live: true })
-    else out.push({ d: arcPath(0, fracOf(now.value.toISOString())), live: true })
+  for (const s of sessions.value) addSeg(s.startTs, s.endTs, false)
+  if (running.value && startedAt.value && now.value.toISOString() > startedAt.value) {
+    addSeg(startedAt.value, now.value.toISOString(), true)
   }
   return out.filter((a) => a.d)
 })
@@ -128,13 +135,19 @@ async function stopStudy() {
   if (seconds < 1) { sessionErr.value = 'session under 1s - not recorded'; return }
   try {
     const db = await ensureDb()
-    const ev = await recordEvent(db, {
-      type: 'study_session', unitId: null,
-      payload: { date: fmt(new Date(startIso)), startTs: startIso, endTs: endIso, seconds },
-      source: 'manual'
-    })
-    sessions.value = [...sessions.value, { id: ev.id, date: ev.payload.date, startTs: startIso, endTs: endIso, seconds }]
-    msg.value = 'study +' + fmtDur(seconds)
+    // split at local midnight: one event per day (each day owns its own part)
+    const segs = splitSessionByDay(startIso, endIso).filter((g) => g.seconds > 0)
+    const added: typeof sessions.value = []
+    for (const g of segs) {
+      const ev = await recordEvent(db, {
+        type: 'study_session', unitId: null,
+        payload: { date: g.date, startTs: g.startTs, endTs: g.endTs, seconds: g.seconds },
+        source: 'manual'
+      })
+      added.push({ id: ev.id, date: g.date, startTs: g.startTs, endTs: g.endTs, seconds: g.seconds })
+    }
+    sessions.value = [...sessions.value, ...added]
+    msg.value = 'study +' + fmtDur(seconds) + (segs.length > 1 ? ' (' + segs.length + ' days split)' : '')
   } catch (e) { sessionErr.value = (e as Error).message || String(e) }
 }
 function loadRunning() {

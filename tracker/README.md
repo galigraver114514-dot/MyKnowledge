@@ -9,7 +9,7 @@
 
 ## 用法
 ```bash
-npm run test:tracker   # 自动化验证: 9 项断言
+npm run test:tracker   # 自动化验证: 11 项断言
 npm run demo           # 启动演示页 (npx serve tracker, 端口 4173)
 ```
 
@@ -23,7 +23,8 @@ npm run demo           # 启动演示页 (npx serve tracker, 端口 4173)
 | `takeSnapshot / listSnapshots / restoreSnapshot` | 本地快照 (最近 5 份) |
 | `getDailyScales(db)` | 每日 mot/conc 量表 (date → {mot,conc}, 同日后者胜) |
 | `clearDailyScale(db, date)` | 删除某日所有 daily_scale 事件 (清空该日) |
-| `getStudySessions(db)` | 学习计时时段列表 (按开始时间排序) |
+| `getStudySessions(db)` | 学习计时时段列表 (按开始时间排序; 跨午夜已按当地日切分) |
+| `splitSessionByDay(startTs, endTs)` | 纯函数: 把一段时间按本地午夜切分为每日一段 |
 | `getStudySeconds(db) / sumStudyByDate(sessions)` | 每日学习秒数合计 (date → seconds) |
 | `clearStudyDay(db, date)` | 删除某日所有 study_session 事件 |
 | `clearEvents(db) / wipeDatabase()` | 清空事件(保快照) / 隐私擦除 |

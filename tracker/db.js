@@ -194,8 +194,36 @@ export async function clearDailyScale(db, date) {
 }
 
 // ---------- study sessions ----------
-// One 'study_session' event per completed timing run:
-// payload { date:'YYYY-MM-DD', startTs, endTs, seconds }.
+// One 'study_session' event per day-segment of a timing run:
+// payload { date:'YYYY-MM-DD' (local day of the segment), startTs, endTs, seconds }.
+// A run crossing local midnight is SPLIT into one event per day, so every day
+// only owns the time actually studied inside it.
+
+export function localDateStr(d) {
+  const p = (n) => String(n).padStart(2, '0')
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())
+}
+// Pure splitter: [startIso, endIso) -> segments, one per local day.
+export function splitSessionByDay(startIso, endIso) {
+  const start = new Date(startIso)
+  const end = new Date(endIso)
+  if (!(end > start)) return [{ date: localDateStr(start), startTs: startIso, endTs: endIso, seconds: 0 }]
+  const out = []
+  let cursor = start
+  while (cursor < end) {
+    const nextMidnight = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + 1, 0, 0, 0, 0)
+    const segEnd = nextMidnight < end ? nextMidnight : end
+    out.push({
+      date: localDateStr(cursor),
+      startTs: cursor.toISOString(),
+      endTs: segEnd.toISOString(),
+      seconds: Math.round((segEnd.getTime() - cursor.getTime()) / 1000)
+    })
+    cursor = segEnd
+  }
+  return out
+}
+
 export async function getStudySessions(db) {
   const evs = await allOf(db, 'events')
   return evs
@@ -203,9 +231,16 @@ export async function getStudySessions(db) {
     .map((ev) => ({ id: ev.id, date: ev.payload.date, startTs: ev.payload.startTs, endTs: ev.payload.endTs, seconds: Number(ev.payload.seconds) || 0 }))
     .sort((a, b) => (a.startTs === b.startTs ? 0 : a.startTs < b.startTs ? -1 : 1))
 }
+// Aggregates by LOCAL DAY from the timestamps (so legacy, un-split sessions
+// that cross midnight are still attributed correctly).
 export function sumStudyByDate(sessions) {
   const m = {}
-  for (const s of sessions) m[s.date] = (m[s.date] || 0) + s.seconds
+  for (const s of sessions) {
+    const segs = (s.startTs && s.endTs)
+      ? splitSessionByDay(s.startTs, s.endTs)
+      : [{ date: s.date, seconds: Number(s.seconds) || 0 }]
+    for (const g of segs) m[g.date] = (m[g.date] || 0) + g.seconds
+  }
   return m
 }
 export async function getStudySeconds(db) { return sumStudyByDate(await getStudySessions(db)) }

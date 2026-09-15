@@ -65,7 +65,7 @@ interface Event {
 | `unit_uncomplete` | required | `{ note? }` | undo completion | redone by unit_complete |
 | `session_start` | null | `{ ua? }` | site session start (page load granularity) | - |
 | `daily_scale` | null | `{ date: 'YYYY-MM-DD', mot: 1-10, conc: 1-10 }` | daily self-rating (motivation/concentration); re-saving the same date keeps the latest by (ts, id) | rewritten on re-save |
-| `study_session` | null | `{ date: 'YYYY-MM-DD', startTs, endTs, seconds }` | one completed timing run from the study timer; `date` = local day of the start; daily totals = sum per date | per-date clear via clearStudyDay |
+| `study_session` | null | `{ date: 'YYYY-MM-DD', startTs, endTs, seconds }` | one day-segment of a study-timer run. A run crossing LOCAL MIDNIGHT is split into one event per day, each carrying only the seconds studied inside that day (so the live timer, the calendar grid and the chart all attribute time correctly). Daily totals aggregate by timestamp (legacy un-split sessions are split on read too). | per-date clear via clearStudyDay |
 | `note_add` *(reserved)* | optional | `{ text }` | not implemented in v1 | - |
 
 > Extensions (e.g. spaced repetition) only add new event types - additive, no

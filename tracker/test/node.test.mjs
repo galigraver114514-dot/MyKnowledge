@@ -4,7 +4,7 @@
 import 'fake-indexeddb/auto'
 import assert from 'node:assert'
 import { openDB, closeDB, recordEvent, getState, getUnitState, getDailyScales,
-         getStudySessions, getStudySeconds, sumStudyByDate, clearStudyDay,
+         getStudySessions, getStudySeconds, sumStudyByDate, clearStudyDay, splitSessionByDay,
          exportData, importData, clearEvents, takeSnapshot, listSnapshots, restoreSnapshot } from '../db.js'
 
 const db = await openDB()
@@ -111,6 +111,18 @@ const s11 = (await getDailyScales(db))['2026-09-11']
 assert.strictEqual(s11.mot, 9)   // the later write wins, regardless of id ordering
 assert.strictEqual(s11.conc, 9)
 ok('same-ts events ordered by seq (deterministic latest-wins)')
+
+console.log('T11 midnight crossing: split per local day, not dumped on one day')
+const segs = splitSessionByDay('2026-09-12T23:50:00', '2026-09-13T00:20:00')
+assert.strictEqual(segs.length, 2)
+assert.strictEqual(segs[0].date, '2026-09-12')
+assert.strictEqual(segs[0].seconds, 600)      // 10 min on day 1
+assert.strictEqual(segs[1].date, '2026-09-13')
+assert.strictEqual(segs[1].seconds, 1200)     // 20 min on day 2
+const splitSums = sumStudyByDate([{ date: '2026-09-12', startTs: '2026-09-12T23:50:00', endTs: '2026-09-13T00:20:00', seconds: 1800 }])
+assert.strictEqual(splitSums['2026-09-12'], 600)
+assert.strictEqual(splitSums['2026-09-13'], 1200)
+ok('crossing session split 600s/1200s across the two local days')
 
 closeDB(db)
 console.log('\nALL PASS: ' + pass + ' checks -> data layer verified (spec restore standard met)')
