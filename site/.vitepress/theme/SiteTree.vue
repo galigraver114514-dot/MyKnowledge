@@ -27,7 +27,7 @@ interface Row {
 
 const route = useRoute()
 const { t, lang } = useT()
-const PAGE_KEYS: Record<string, string> = { '/': 'status.home', '/graph': 'page.graph', '/track': 'page.track', '/english/': 'page.idxEn', '/math/': 'page.idxMath' }
+const PAGE_KEYS: Record<string, string> = { '/': 'status.home', '/graph': 'page.graph', '/track': 'page.track', '/example/': 'page.idxExample' }
 function nodeTitle(r: Row): string {
   if (r.isGroup) return r.dir ? courseLabelOf(r.dir, lang.value) : r.title
   return PAGE_KEYS[r.path as string] ? t(PAGE_KEYS[r.path as string]) : r.title

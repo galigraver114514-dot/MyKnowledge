@@ -19,125 +19,52 @@ export const NAV = [
  },
  {
   "kind": "group",
-  "key": "g-english",
-  "title": "英语",
+  "key": "g-example",
+  "title": "示例",
   "children": [
    {
     "kind": "page",
     "title": "赛道首页",
-    "path": "/english/"
+    "path": "/example/"
    },
    {
-    "kind": "group",
-    "key": "g-english-vocab-core",
-    "title": "词汇-核心",
-    "children": [
-     {
-      "kind": "page",
-      "title": "Unit 01 高频动词 12",
-      "path": "/english/vocab-core/unit-01-core-verbs"
-     },
-     {
-      "kind": "page",
-      "title": "Unit 02 高频名词 12",
-      "path": "/english/vocab-core/unit-02-core-nouns"
-     },
-     {
-      "kind": "page",
-      "title": "Unit 03 学习话题词",
-      "path": "/english/vocab-core/unit-03-study-words"
-     }
-    ],
-    "dir": "english/vocab-core"
+    "kind": "page",
+    "title": "示例 · 中文单元",
+    "path": "/example/unit-01-zh"
    },
    {
-    "kind": "group",
-    "key": "g-english-grammar-basics",
-    "title": "基础语法",
-    "children": [
-     {
-      "kind": "page",
-      "title": "Unit 01 时态总览",
-      "path": "/english/grammar-basics/unit-01-tenses"
-     },
-     {
-      "kind": "page",
-      "title": "Unit 02 句子成分",
-      "path": "/english/grammar-basics/unit-02-sentence-parts"
-     }
-    ],
-    "dir": "english/grammar-basics"
+    "kind": "page",
+    "title": "Example · English unit",
+    "path": "/example/unit-02-en"
+   },
+   {
+    "kind": "page",
+    "title": "サンプル · 日本語ユニット",
+    "path": "/example/unit-03-ja"
    }
   ],
-  "dir": "english"
- },
- {
-  "kind": "group",
-  "key": "g-math",
-  "title": "数学",
-  "children": [
-   {
-    "kind": "page",
-    "title": "赛道首页",
-    "path": "/math/"
-   },
-   {
-    "kind": "page",
-    "title": "Unit 01 心算加法",
-    "path": "/math/unit-01-mental-addition"
-   },
-   {
-    "kind": "page",
-    "title": "Unit 02 分数速览",
-    "path": "/math/unit-02-fractions-basics"
-   }
-  ],
-  "dir": "math"
+  "dir": "example"
  }
 ]
 
 export const UNITS = [
  {
-  "id": "e-gram-001",
-  "title": "Unit 01 时态总览",
-  "path": "/english/grammar-basics/unit-01-tenses",
-  "course": "基础语法"
+  "id": "ex-001",
+  "title": "示例 · 中文单元",
+  "path": "/example/unit-01-zh",
+  "course": "示例"
  },
  {
-  "id": "e-gram-002",
-  "title": "Unit 02 句子成分",
-  "path": "/english/grammar-basics/unit-02-sentence-parts",
-  "course": "基础语法"
+  "id": "ex-002",
+  "title": "Example · English unit",
+  "path": "/example/unit-02-en",
+  "course": "示例"
  },
  {
-  "id": "e-vocab-001",
-  "title": "Unit 01 高频动词 12",
-  "path": "/english/vocab-core/unit-01-core-verbs",
-  "course": "词汇-核心"
- },
- {
-  "id": "e-vocab-002",
-  "title": "Unit 02 高频名词 12",
-  "path": "/english/vocab-core/unit-02-core-nouns",
-  "course": "词汇-核心"
- },
- {
-  "id": "e-vocab-003",
-  "title": "Unit 03 学习话题词",
-  "path": "/english/vocab-core/unit-03-study-words",
-  "course": "词汇-核心"
- },
- {
-  "id": "m-001",
-  "title": "Unit 01 心算加法",
-  "path": "/math/unit-01-mental-addition",
-  "course": "数学"
- },
- {
-  "id": "m-002",
-  "title": "Unit 02 分数速览",
-  "path": "/math/unit-02-fractions-basics",
-  "course": "数学"
+  "id": "ex-003",
+  "title": "サンプル · 日本語ユニット",
+  "path": "/example/unit-03-ja",
+  "course": "示例"
  }
 ]
 
@@ -166,133 +93,57 @@ export const PAGE_META = {
   "title": "Tracking calendar",
   "node": null
  },
- "/english/": {
+ "/example/": {
   "id": null,
   "created": "2026-09-09",
   "lang": "zh",
   "track": false,
-  "title": "English",
+  "title": "Example",
   "node": null
  },
- "/english/vocab-core/unit-01-core-verbs": {
-  "id": "e-vocab-001",
+ "/example/unit-01-zh": {
+  "id": "ex-001",
   "created": "2026-09-09",
   "lang": "zh",
   "track": true,
-  "title": "Unit 01 高频动词 12",
+  "title": "示例 · 中文单元",
+  "node": null
+ },
+ "/example/unit-02-en": {
+  "id": "ex-002",
+  "created": "2026-09-09",
+  "lang": "en",
+  "track": true,
+  "title": "Example · English unit",
   "node": {
    "mode": true,
    "prompt": null,
    "dims": [
-    "词性",
-    "主题"
+    "pos",
+    "topic"
    ]
   }
  },
- "/english/vocab-core/unit-02-core-nouns": {
-  "id": "e-vocab-002",
+ "/example/unit-03-ja": {
+  "id": "ex-003",
   "created": "2026-09-09",
-  "lang": "zh",
+  "lang": "ja",
   "track": true,
-  "title": "Unit 02 高频名词 12",
-  "node": {
-   "mode": true,
-   "prompt": null,
-   "dims": [
-    "词性",
-    "主题"
-   ]
-  }
- },
- "/english/vocab-core/unit-03-study-words": {
-  "id": "e-vocab-003",
-  "created": "2026-09-09",
-  "lang": "zh",
-  "track": true,
-  "title": "Unit 03 学习话题词",
-  "node": null
- },
- "/english/grammar-basics/unit-01-tenses": {
-  "id": "e-gram-001",
-  "created": "2026-09-09",
-  "lang": "zh",
-  "track": true,
-  "title": "Unit 01 时态总览",
-  "node": null
- },
- "/english/grammar-basics/unit-02-sentence-parts": {
-  "id": "e-gram-002",
-  "created": "2026-09-09",
-  "lang": "zh",
-  "track": true,
-  "title": "Unit 02 句子成分",
-  "node": null
- },
- "/math/": {
-  "id": null,
-  "created": "2026-09-09",
-  "lang": "zh",
-  "track": false,
-  "title": "Math",
-  "node": null
- },
- "/math/unit-01-mental-addition": {
-  "id": "m-001",
-  "created": "2026-09-09",
-  "lang": "zh",
-  "track": true,
-  "title": "Unit 01 心算加法",
-  "node": {
-   "mode": true,
-   "prompt": "unit-01-mental-addition.prompt.md",
-   "dims": [
-    "题型",
-    "技巧"
-   ]
-  }
- },
- "/math/unit-02-fractions-basics": {
-  "id": "m-002",
-  "created": "2026-09-09",
-  "lang": "zh",
-  "track": true,
-  "title": "Unit 02 分数速览",
+  "title": "サンプル · 日本語ユニット",
   "node": null
  }
 }
 
 export const NODE_SPEC = [
  {
-  "path": "/english/vocab-core/unit-01-core-verbs",
-  "id": "e-vocab-001",
-  "file": "english/vocab-core/unit-01-core-verbs.md",
+  "path": "/example/unit-02-en",
+  "id": "ex-002",
+  "file": "example/unit-02-en.md",
   "mode": true,
   "prompt": null,
   "dims": [
-   "词性",
-   "主题"
-  ]
- },
- {
-  "path": "/english/vocab-core/unit-02-core-nouns",
-  "id": "e-vocab-002",
-  "file": "english/vocab-core/unit-02-core-nouns.md",
-  "mode": true,
-  "prompt": null,
-  "dims": [
-   "词性",
-   "主题"
-  ]
- },
- {
-  "path": "/math/unit-01-mental-addition",
-  "id": "m-001",
-  "file": "math/unit-01-mental-addition.md",
-  "mode": true,
-  "prompt": "unit-01-mental-addition.prompt.md",
-  "dims": [
-   "题型",
-   "技巧"
+   "pos",
+   "topic"
   ]
  }
 ]

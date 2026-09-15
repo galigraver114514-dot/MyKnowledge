@@ -8,7 +8,7 @@ import { NAV } from '../nav'
 
 const props = defineProps<{ page: string }>()
 const { t, lang } = useT()
-const dir = computed(() => (props.page === 'english' || props.page === 'math' ? props.page : ''))
+const dir = computed(() => (props.page === 'example' ? props.page : ''))
 const landing = computed(() => (dir.value ? '/' + dir.value + '/' : ''))
 interface UnitL { title: string; path: string }
 interface GroupL { title: string; dir: string | null; units: UnitL[] }
@@ -60,7 +60,7 @@ const glabel = (gg: GroupL) => (gg.dir ? courseLabelOf(gg.dir, lang.value) : gg.
       <DailyScales />
     </template>
 
-    <template v-else-if="page === 'english' || page === 'math'">
+    <template v-else-if="page === 'example'">
       <h1>{{ courseLabelOf(dir, lang.value) }}</h1>
       <p>{{ t('course.intro') }}</p>
       <div v-if="course.groups.length">

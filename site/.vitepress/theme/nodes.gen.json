@@ -1,444 +1,113 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-09-15T15:05:15.250Z",
+ "generatedAt": "2026-09-15T15:09:30.840Z",
  "pages": [
   {
-   "path": "/english/vocab-core/unit-01-core-verbs",
-   "id": "e-vocab-001",
-   "file": "english/vocab-core/unit-01-core-verbs.md",
+   "path": "/example/unit-02-en",
+   "id": "ex-002",
+   "file": "example/unit-02-en.md",
    "mode": true,
    "prompt": null,
    "dims": [
-    "词性",
-    "主题"
+    "pos",
+    "topic"
    ],
    "nodes": [
     {
-     "id": "e-vocab-001.get",
-     "name": "get",
+     "id": "ex-002.learn",
+     "name": "learn",
      "kind": "word",
      "origin": "mechanical",
-     "definition": "得到；变得",
+     "definition": null,
      "labels": {
-      "词性": [
+      "pos": [
        "v."
       ],
-      "主题": [
-       "获得·得到"
+      "topic": [
+       "study"
+      ],
+      "meaning": [
+       "学习"
       ]
      }
     },
     {
-     "id": "e-vocab-001.make",
-     "name": "make",
+     "id": "ex-002.practice",
+     "name": "practice",
      "kind": "word",
      "origin": "mechanical",
-     "definition": "制作；使得",
+     "definition": null,
      "labels": {
-      "词性": [
+      "pos": [
        "v."
       ],
-      "主题": [
-       "创造·制作"
+      "topic": [
+       "study"
+      ],
+      "meaning": [
+       "练习"
       ]
      }
     },
     {
-     "id": "e-vocab-001.take",
-     "name": "take",
+     "id": "ex-002.review",
+     "name": "review",
      "kind": "word",
      "origin": "mechanical",
-     "definition": "拿；花费",
+     "definition": null,
      "labels": {
-      "词性": [
+      "pos": [
        "v."
       ],
-      "主题": [
-       "携带·获取"
+      "topic": [
+       "study"
+      ],
+      "meaning": [
+       "复习"
       ]
      }
     },
     {
-     "id": "e-vocab-001.know",
-     "name": "know",
+     "id": "ex-002.note",
+     "name": "note",
      "kind": "word",
      "origin": "mechanical",
-     "definition": "知道；认识",
+     "definition": null,
      "labels": {
-      "词性": [
-       "v."
+      "pos": [
+       "n."
       ],
-      "主题": [
-       "认知·思考"
+      "topic": [
+       "writing"
+      ],
+      "meaning": [
+       "笔记"
       ]
      }
     },
     {
-     "id": "e-vocab-001.think",
-     "name": "think",
+     "id": "ex-002.goal",
+     "name": "goal",
      "kind": "word",
      "origin": "mechanical",
-     "definition": "想；认为",
+     "definition": null,
      "labels": {
-      "词性": [
-       "v."
+      "pos": [
+       "n."
       ],
-      "主题": [
-       "认知·思考"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-001.come",
-     "name": "come",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "来",
-     "labels": {
-      "词性": [
-       "v."
+      "topic": [
+       "planning"
       ],
-      "主题": [
-       "移动·来去"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-001.go",
-     "name": "go",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "去",
-     "labels": {
-      "词性": [
-       "v."
-      ],
-      "主题": [
-       "移动·来去"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-001.look",
-     "name": "look",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "看；看起来",
-     "labels": {
-      "词性": [
-       "v."
-      ],
-      "主题": [
-       "感官·视觉"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-001.want",
-     "name": "want",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "想要",
-     "labels": {
-      "词性": [
-       "v."
-      ],
-      "主题": [
-       "意愿·想要"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-001.use",
-     "name": "use",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "使用",
-     "labels": {
-      "词性": [
-       "v."
-      ],
-      "主题": [
-       "工具·使用"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-001.find",
-     "name": "find",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "找到；发觉",
-     "labels": {
-      "词性": [
-       "v."
-      ],
-      "主题": [
-       "发现·寻找"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-001.give",
-     "name": "give",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "给",
-     "labels": {
-      "词性": [
-       "v."
-      ],
-      "主题": [
-       "给予·传递"
+      "meaning": [
+       "目标"
       ]
      }
     }
    ]
-  },
-  {
-   "path": "/english/vocab-core/unit-02-core-nouns",
-   "id": "e-vocab-002",
-   "file": "english/vocab-core/unit-02-core-nouns.md",
-   "mode": true,
-   "prompt": null,
-   "dims": [
-    "词性",
-    "主题"
-   ],
-   "nodes": [
-    {
-     "id": "e-vocab-002.time",
-     "name": "time",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "时间；次数",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "时间·日程"
-      ],
-      "可数": [
-       "✗(常)"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.year",
-     "name": "year",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "年",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "时间·日程"
-      ],
-      "可数": [
-       "✓"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.way",
-     "name": "way",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "路；方法",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "路径·方法"
-      ],
-      "可数": [
-       "✓"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.day",
-     "name": "day",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "天",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "时间·日程"
-      ],
-      "可数": [
-       "✓"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.thing",
-     "name": "thing",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "事情；东西",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "泛指·物件"
-      ],
-      "可数": [
-       "✓"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.man",
-     "name": "man",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "男人",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "人·关系"
-      ],
-      "可数": [
-       "✓"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.world",
-     "name": "world",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "世界",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "空间·世界"
-      ],
-      "可数": [
-       "✓"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.life",
-     "name": "life",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "生活；生命",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "生命·生活"
-      ],
-      "可数": [
-       "✓/✗"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.work",
-     "name": "work",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "工作(不可数)",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "工作·事务"
-      ],
-      "可数": [
-       "✗"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.school",
-     "name": "school",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "学校",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "学习·场所"
-      ],
-      "可数": [
-       "✓"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.friend",
-     "name": "friend",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "朋友",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "人·关系"
-      ],
-      "可数": [
-       "✓"
-      ]
-     }
-    },
-    {
-     "id": "e-vocab-002.money",
-     "name": "money",
-     "kind": "word",
-     "origin": "mechanical",
-     "definition": "钱",
-     "labels": {
-      "词性": [
-       "n."
-      ],
-      "主题": [
-       "金钱·物质"
-      ],
-      "可数": [
-       "✗"
-      ]
-     }
-    }
-   ]
-  },
-  {
-   "path": "/math/unit-01-mental-addition",
-   "id": "m-001",
-   "file": "math/unit-01-mental-addition.md",
-   "mode": true,
-   "prompt": "unit-01-mental-addition.prompt.md",
-   "dims": [
-    "题型",
-    "技巧"
-   ],
-   "nodes": []
   }
  ],
  "stats": {
-  "pages": 3,
-  "nodes": 24
+  "pages": 1,
+  "nodes": 5
  }
 }

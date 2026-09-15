@@ -155,7 +155,7 @@ const helpRows = [
   ['m', 'help.m']
 ] as const
 
-const PAGE_KEYS: Record<string, string> = { '/': 'status.home', '/graph': 'page.graph', '/track': 'page.track', '/english/': 'page.idxEn', '/math/': 'page.idxMath' }
+const PAGE_KEYS: Record<string, string> = { '/': 'status.home', '/graph': 'page.graph', '/track': 'page.track', '/example/': 'page.idxExample' }
 function nodeTitle(n: NavNode): string {
   if (n.kind === 'group') return n.dir ? courseLabelOf(n.dir, lang.value) : n.title
   return PAGE_KEYS[n.path] ? t(PAGE_KEYS[n.path]) : n.title

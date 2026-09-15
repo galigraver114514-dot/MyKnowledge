@@ -63,8 +63,7 @@ const D: Record<string, Row> = {
   // page scaffold titles (nav + breadcrumb)
   'page.graph': { en: 'Knowledge graph', zh: '学习图谱', ja: '学習グラフ' },
   'page.track': { en: 'Tracking calendar', zh: '追踪日历', ja: '記録カレンダー' },
-  'page.idxEn': { en: 'English · course hub', zh: '英语赛道', ja: '英語コース' },
-  'page.idxMath': { en: 'Math · course hub', zh: '数学赛道', ja: '数学コース' },
+  'page.idxExample': { en: 'Example · course hub', zh: '示例赛道', ja: 'サンプルコース' },
   // DailyScales
   'ds.reading': { en: 'reading local state ...', zh: '读取本机状态 …', ja: 'ローカル状態を読込中 …' },
   'ds.days': { en: 'd', zh: '天', ja: '日' },

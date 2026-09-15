@@ -65,7 +65,7 @@ or globally per course via courses.config.json `nodeModeDefault`.
 
 ```yaml
 ---
-id: e-vocab-001
+id: ex-002
 nodeMode: true          # optional: enable the node view on this unit
 nodePrompt: xxx.prompt.md  # optional: consistency guidance for node-ification
 nodeDims: ["pos", "topic"] # optional: allowed dimensions (order = switch order)

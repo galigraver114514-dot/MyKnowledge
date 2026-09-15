@@ -27,8 +27,8 @@
 ```yaml
 ---
 title: Unit title
-id: e-vocab-001        # stable id: decoupled from the file path
-course: vocab-core      # course this unit belongs to
+id: ex-002             # stable id: decoupled from the file path
+course: example         # course this unit belongs to
 order: 1               # ordering within the course
 created: 2026-09-09
 ---
@@ -36,7 +36,7 @@ created: 2026-09-09
 
 - **Paths may change, ids must not.** Tracking UIs only ever key on ids.
 - A course is the parent group of units; one course = one nav branch
-  (e.g. vocab-core / grammar-basics / math).
+  (e.g. the bundled `example` course).
 
 ## 3. Event semantics
 

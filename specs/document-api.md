@@ -52,10 +52,9 @@ x-*: anything            # extension namespace; core never reads it
   "defaultLang": "zh",
   "courseIndexLabel": { "en": "Course", "zh": "赛道首页", "ja": "コース" },
   "labels": {
-    "english": { "en": "English", "zh": "英语", "ja": "英語" },
-    "vocab-core": { "en": "Core Vocabulary", "zh": "词汇-核心", "ja": "コア語彙" }
+    "example": { "en": "Example", "zh": "示例", "ja": "サンプル" }
   },
-  "dirOrder": { "english": ["vocab-core", "grammar-basics"] }
+  "dirOrder": { }
 }
 ```
 
@@ -66,9 +65,9 @@ x-*: anything            # extension namespace; core never reads it
 
 ## 4. id stability (the one exception to the tracking red line)
 
-- A hard-coded `id` wins (e.g. `e-vocab-001`) -> renames/moves never lose history.
+- A hard-coded `id` wins (e.g. `ex-002`) -> renames/moves never lose history.
 - Without one, the id is derived from the relative path
-  (e.g. `english.vocab-core.unit-01-core-verbs`) -> **renaming the file creates
+  (e.g. `example.unit-02-en`) -> **renaming the file creates
   a new id and loses old records**. Add an explicit `id` when long-term
   stability matters (duplicate ids are rejected by the generator).
 
