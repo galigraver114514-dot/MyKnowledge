@@ -29,18 +29,13 @@ export const NAV = [
    },
    {
     "kind": "page",
-    "title": "示例 · 中文单元",
-    "path": "/example/unit-01-zh"
+    "title": "Basics (example unit)",
+    "path": "/example/unit-01-basics"
    },
    {
     "kind": "page",
-    "title": "Example · English unit",
-    "path": "/example/unit-02-en"
-   },
-   {
-    "kind": "page",
-    "title": "サンプル · 日本語ユニット",
-    "path": "/example/unit-03-ja"
+    "title": "Node demo (example unit)",
+    "path": "/example/unit-02-nodes"
    }
   ],
   "dir": "example"
@@ -50,20 +45,24 @@ export const NAV = [
 export const UNITS = [
  {
   "id": "ex-001",
-  "title": "示例 · 中文单元",
-  "path": "/example/unit-01-zh",
+  "title": "Basics (example unit)",
+  "titles": {
+   "en": "Basics (example unit)",
+   "zh": "基础（示例单元）",
+   "ja": "基本（サンプルユニット）"
+  },
+  "path": "/example/unit-01-basics",
   "course": "示例"
  },
  {
   "id": "ex-002",
-  "title": "Example · English unit",
-  "path": "/example/unit-02-en",
-  "course": "示例"
- },
- {
-  "id": "ex-003",
-  "title": "サンプル · 日本語ユニット",
-  "path": "/example/unit-03-ja",
+  "title": "Node demo (example unit)",
+  "titles": {
+   "en": "Node demo (example unit)",
+   "zh": "节点演示（示例单元）",
+   "ja": "ノードのデモ（サンプルユニット）"
+  },
+  "path": "/example/unit-02-nodes",
   "course": "示例"
  }
 ]
@@ -75,6 +74,7 @@ export const PAGE_META = {
   "lang": "zh",
   "track": false,
   "title": "Home",
+  "titles": null,
   "node": null
  },
  "/graph": {
@@ -83,6 +83,7 @@ export const PAGE_META = {
   "lang": "zh",
   "track": false,
   "title": "Knowledge graph",
+  "titles": null,
   "node": null
  },
  "/track": {
@@ -91,6 +92,7 @@ export const PAGE_META = {
   "lang": "zh",
   "track": false,
   "title": "Tracking calendar",
+  "titles": null,
   "node": null
  },
  "/example/": {
@@ -99,22 +101,33 @@ export const PAGE_META = {
   "lang": "zh",
   "track": false,
   "title": "Example",
+  "titles": null,
   "node": null
  },
- "/example/unit-01-zh": {
+ "/example/unit-01-basics": {
   "id": "ex-001",
   "created": "2026-09-09",
-  "lang": "zh",
+  "lang": "multi",
   "track": true,
-  "title": "示例 · 中文单元",
+  "title": "Basics (example unit)",
+  "titles": {
+   "en": "Basics (example unit)",
+   "zh": "基础（示例单元）",
+   "ja": "基本（サンプルユニット）"
+  },
   "node": null
  },
- "/example/unit-02-en": {
+ "/example/unit-02-nodes": {
   "id": "ex-002",
   "created": "2026-09-09",
-  "lang": "en",
+  "lang": "multi",
   "track": true,
-  "title": "Example · English unit",
+  "title": "Node demo (example unit)",
+  "titles": {
+   "en": "Node demo (example unit)",
+   "zh": "节点演示（示例单元）",
+   "ja": "ノードのデモ（サンプルユニット）"
+  },
   "node": {
    "mode": true,
    "prompt": null,
@@ -123,22 +136,14 @@ export const PAGE_META = {
     "topic"
    ]
   }
- },
- "/example/unit-03-ja": {
-  "id": "ex-003",
-  "created": "2026-09-09",
-  "lang": "ja",
-  "track": true,
-  "title": "サンプル · 日本語ユニット",
-  "node": null
  }
 }
 
 export const NODE_SPEC = [
  {
-  "path": "/example/unit-02-en",
+  "path": "/example/unit-02-nodes",
   "id": "ex-002",
-  "file": "example/unit-02-en.md",
+  "file": "example/unit-02-nodes.md",
   "mode": true,
   "prompt": null,
   "dims": [

@@ -103,6 +103,8 @@ function pageNode(fileRel, abs, groupLabel) {
     const pf = path.resolve(path.dirname(abs), prompt)
     if (!fs.existsSync(pf)) errors.push('nodePrompt file not found: ' + prompt + ' (' + fileRel + ')')
   }
+  const titles = { en: doc.fm.title_en || null, zh: doc.fm.title_zh || null, ja: doc.fm.title_ja || null }
+  const hasTitles = Object.values(titles).some(Boolean)
   const dims = Array.isArray(doc.fm.nodeDims) ? doc.fm.nodeDims : null
   const mode = doc.fm.nodeMode === true || cfg.nodeModeDefault === true
   const node = mode || prompt || dims ? { mode: !!mode, prompt, dims, file: fileRel } : null
@@ -113,7 +115,8 @@ function pageNode(fileRel, abs, groupLabel) {
     track: doc.fm.type !== 'page' && doc.fm.track !== false,
     order: doc.fm.order ?? (orderNum ? Number(orderNum) : Infinity),
     groupLabel,
-    node
+    node,
+    titles: hasTitles ? titles : null
   }
 }
 
@@ -174,7 +177,7 @@ for (const top of dirs.filter((d) => d.rel && !d.rel.includes('/')).sort((a, b) 
 // ---------- flatten unit registry (ProgressPanel) ----------
 const units = []
 for (const [p, m] of pageFiles) {
-  if (m.track && m.id) units.push({ id: m.id, title: m.title, path: p, course: m.groupLabel || '未分类' })
+  if (m.track && m.id) units.push({ id: m.id, title: m.title, titles: m.titles ?? null, path: p, course: m.groupLabel || '未分类' })
 }
 units.sort((a, b) => a.path.localeCompare(b.path, 'zh', { numeric: true }))
 
@@ -199,6 +202,7 @@ lines.push('')
 const metaObj = {}
 for (const [p, m] of pageFiles) metaObj[p] = {
   id: m.id ?? null, created: m.created ?? null, lang: m.lang ?? null, track: !!m.track, title: m.title,
+  titles: m.titles ?? null,
   node: m.node ? { mode: !!m.node.mode, prompt: m.node.prompt, dims: m.node.dims } : null
 }
 lines.push('export const PAGE_META = ' + JSON.stringify(metaObj, null, 1))

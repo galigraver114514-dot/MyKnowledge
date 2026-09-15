@@ -9,6 +9,8 @@ import { openDB, getState } from '../../../../tracker/db.js'
 import { UNITS } from '../nav'
 import { useT, zhCourseOf } from '../i18n'
 const { t, lang } = useT()
+const unitTitle = (u: { title: string; titles?: Record<string, string | null> | null }) =>
+  (u.titles && u.titles[lang.value]) || u.title
 
 type Status = 'not_started' | 'in_progress' | 'completed'
 const statusOf = ref<Record<string, Status>>({})
@@ -59,7 +61,7 @@ onMounted(async () => {
         <p class="pp-total">{{ t('pp.total') }}: {{ all.done }}/{{ all.total }} [{{ bar(all.done, all.total) }}]</p>
         <div v-for="(units, course) in courses" :key="course" class="pp-course">
           <p class="pp-head">{{ pad(zhCourseOf(course, lang), 10) }} {{ stat(units).done }}/{{ stat(units).total }} [{{ bar(stat(units).done, stat(units).total) }}]</p>
-          <p v-for="u in units" :key="u.id" class="pp-unit"><span class="pp-m">{{ m(u) }}</span> <a :href="withBase(u.path)">{{ u.title }}</a></p>
+          <p v-for="u in units" :key="u.id" class="pp-unit"><span class="pp-m">{{ m(u) }}</span> <a :href="withBase(u.path)">{{ unitTitle(u) }}</a></p>
         </div>
       </template>
     </template>

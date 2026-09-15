@@ -1,11 +1,11 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-09-15T15:09:30.840Z",
+ "generatedAt": "2026-09-15T15:21:38.512Z",
  "pages": [
   {
-   "path": "/example/unit-02-en",
+   "path": "/example/unit-02-nodes",
    "id": "ex-002",
-   "file": "example/unit-02-en.md",
+   "file": "example/unit-02-nodes.md",
    "mode": true,
    "prompt": null,
    "dims": [

@@ -5,7 +5,7 @@
 // hrefs handled by VitePress's own router (no manual router.go calls).
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, withBase } from 'vitepress'
-import { NAV, MK_TREE_EXPANDED_KEY, type NavNode } from './nav'
+import { NAV, PAGE_META, MK_TREE_EXPANDED_KEY, type NavNode } from './nav'
 import { useT, courseLabelOf } from './i18n'
 
 const TREE_SCROLL_KEY = 'mk.tree.scroll'
@@ -30,7 +30,10 @@ const { t, lang } = useT()
 const PAGE_KEYS: Record<string, string> = { '/': 'status.home', '/graph': 'page.graph', '/track': 'page.track', '/example/': 'page.idxExample' }
 function nodeTitle(r: Row): string {
   if (r.isGroup) return r.dir ? courseLabelOf(r.dir, lang.value) : r.title
-  return PAGE_KEYS[r.path as string] ? t(PAGE_KEYS[r.path as string]) : r.title
+  if (PAGE_KEYS[r.path as string]) return t(PAGE_KEYS[r.path as string])
+  const lt = PAGE_META[r.path as string]?.titles as Record<string, string | null> | undefined
+  const per = lt ? lt[lang.value] : null
+  return per || r.title
 }
 // VitePress route.path includes the base prefix (e.g. /MyKnowledge/english/...);
 // normalize to the bare path used by NAV entries.

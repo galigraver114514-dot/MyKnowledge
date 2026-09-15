@@ -158,7 +158,14 @@ const helpRows = [
 const PAGE_KEYS: Record<string, string> = { '/': 'status.home', '/graph': 'page.graph', '/track': 'page.track', '/example/': 'page.idxExample' }
 function nodeTitle(n: NavNode): string {
   if (n.kind === 'group') return n.dir ? courseLabelOf(n.dir, lang.value) : n.title
-  return PAGE_KEYS[n.path] ? t(PAGE_KEYS[n.path]) : n.title
+  if (PAGE_KEYS[n.path]) return t(PAGE_KEYS[n.path])
+  const langTitles = PAGE_META[n.path]?.titles as Record<string, string | null> | undefined
+  const perLang = langTitles ? langTitles[lang.value] : null
+  return perLang || n.title
+}
+// html[data-lang] drives which :::lang-xx block is visible (content i18n)
+function applyHtmlLang() {
+  try { document.documentElement.setAttribute('data-lang', lang.value) } catch { /* ignore */ }
 }
 
 function isTypingTarget(e: KeyboardEvent): boolean {
@@ -207,9 +214,10 @@ onContentUpdated(() => {
   if (metaVisible.value) metaTimer = setTimeout(computeMeta, 60)
 })
 
-watch(lang, () => { if (metaVisible.value) metaTimer = setTimeout(computeMeta, 60) })
+watch(lang, () => { applyHtmlLang(); if (metaVisible.value) metaTimer = setTimeout(computeMeta, 60) })
 onMounted(() => {
   initLang()
+  applyHtmlLang()
   window.addEventListener('keydown', onKey)
   window.addEventListener('scroll', onScroll, { passive: true })
   updateLocation()

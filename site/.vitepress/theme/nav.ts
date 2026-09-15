@@ -7,9 +7,10 @@ export interface NavGroup { kind: 'group'; key: string; title: string; children:
 export type NavNode = NavPage | NavGroup
 
 export const NAV = GEN_NAV as NavNode[]
-export const UNITS = GEN_UNITS as { id: string; title: string; path: string; course: string }[]
+export const UNITS = GEN_UNITS as { id: string; title: string; titles?: Record<string, string | null> | null; path: string; course: string }[]
 export const PAGE_META = GEN_META as Record<string, {
   id: string | null; created: string | null; lang: string | null; track: boolean; title: string
+  titles?: Record<string, string | null> | null
   node: { mode: boolean; prompt: string | null; dims: string[] | null } | null
 }>
 export const NODE_SPEC = GEN_NODE_SPEC

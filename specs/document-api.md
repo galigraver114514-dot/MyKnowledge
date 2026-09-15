@@ -41,9 +41,51 @@ summary: one-liner       # reserved
 nodeMode: true           # optional: enable the node-mode second view
 nodePrompt: xxx.md       # optional: consistency prompt for node-ification (inline or relative .md)
 nodeDims: ["pos", "topic"]  # optional: allowed dimensions (order = switch order)
+title_en: Title          # optional: per-language unit titles (nav tree / breadcrumb /
+title_zh: 标题            #   progress panel follow the active UI language)
+title_ja: タイトル
 x-*: anything            # extension namespace; core never reads it
 ---
 ```
+
+## 2.1 Multilingual content in ONE file
+
+Exactly one file per unit - no per-language copies. Wrap each language version in
+a block; the theme shows only the block matching the active UI language
+(`html[data-lang]`, default English):
+
+```markdown
+---
+title: Basics (example unit)
+title_en: Basics (example unit)
+title_zh: 基础（示例单元）
+title_ja: 基本（サンプルユニット）
+id: ex-001
+course: example
+---
+
+:::lang-en
+# Basics (example unit)
+English body...
+:::
+
+:::lang-zh
+# 基础（示例单元）
+中文正文...
+:::
+
+:::lang-ja
+# 基本（サンプルユニット）
+日本語の本文...
+:::
+```
+
+- Block languages are free-form two-letter codes (`lang-en`, `lang-zh`, `lang-ja`);
+  switching the UI language toggles visibility instantly, no rebuild.
+- Put the per-language `# H1` **inside** each block so the heading switches too;
+  `title_xx` frontmatter drives the tree/breadcrumb/panel titles.
+- A block for a language that is not active is hidden (not removed), so the
+  page still works with JS disabled (English is the default).
 
 ## 3. Display names & ordering (`courses.config.json`, only when adding/renaming branches)
 

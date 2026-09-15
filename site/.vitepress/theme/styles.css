@@ -101,6 +101,15 @@ a:hover { color: var(--accent-strong); }
 .mk-main { flex: 1; min-width: 0; }
 .mk-content { max-width: 58em; margin: 0 auto; padding: 1.1rem 1.4rem 4.6rem; }
 
+/* ---------------- multilingual content blocks (: ::lang-xx) ---------------- */
+/* default before JS sets html[data-lang]: English only */
+.langblock { display: none; }
+.langblock[data-lang="en"] { display: block; }
+html[data-lang] .langblock { display: none; }
+html[data-lang="en"] .langblock[data-lang="en"],
+html[data-lang="zh"] .langblock[data-lang="zh"],
+html[data-lang="ja"] .langblock[data-lang="ja"] { display: block; }
+
 /* ---------------- content (compact) ---------------- */
 .mk-content h1 {
   font-size: 1.25rem; font-weight: 700; color: #000;

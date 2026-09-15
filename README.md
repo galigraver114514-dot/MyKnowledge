@@ -20,8 +20,8 @@ MyKnowledge/
 │   ├── .vitepress/config.mts    # site meta / base path
 │   ├── .vitepress/theme/        # fully custom minimal theme (Layout + ASCII tree)
 │   ├── index.md                 # learning map (with local progress panel)
-│   └── example/                 # the ONLY bundled content: a sample tree with
-│                                #   zh / en / ja units (replace freely)
+│   └── example/                 # the ONLY bundled content: 2 sample units, each
+│                                #   ONE file containing zh/en/ja blocks
 ├── scripts/gen-catalog.mjs      # doc->page pipeline: scans site/, emits catalog.gen.ts
 ├── specs/
 │   ├── data-model.md            # data model & tracking semantics spec v1
@@ -60,8 +60,10 @@ npm run demo         # 3) tracker demo page    (http://localhost:4173)
 ## UI & keys (ASCII terminal)
 
 - UI language: EN (default) / 中文 / 日本語 - switch in the panel header
-  or status bar (persisted); applies to UI chrome & nav labels (learning
-  content keeps its own language)
+  or status bar (persisted). It drives the UI chrome, nav labels, and the
+  `:::lang-xx` blocks inside content: **one file holds all languages** and the
+  page switches in place (`html[data-lang]`); per-language titles come from
+  `title_en / title_zh / title_ja` frontmatter.
 - White background, black monospace text; unified **blue** highlight for
   selection, links, code, the current page, progress markers and the tree
   cursor row.
